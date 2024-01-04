@@ -616,14 +616,6 @@ namespace RevitToRDFConverter
                     //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
                     //}
 
-
-
-                    //Port relationship to other ports
-                    ConnectorSet joinedconnectors = connector.AllRefs;
-                    if (connectorDirection == "Out")
-                    {
-
-
                         if (component.LookupParameter("Reynolds number") != null)
                         {
                             //Reynolds number
@@ -646,6 +638,11 @@ namespace RevitToRDFConverter
                              + $"inst:{flowStateID} fpo:hasUnit 'Pascal'^^xsd:string ." + "\n");
                         }
 
+
+                    //Port relationship to other ports
+                    ConnectorSet joinedconnectors = connector.AllRefs;
+                    if (connectorDirection == "Out")
+                    {
                         foreach (Connector connectedConnector in joinedconnectors)
                         {
                             connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
