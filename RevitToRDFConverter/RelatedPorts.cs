@@ -122,10 +122,6 @@ namespace RevitToRDFConverter
                     //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
                     //}
 
-
-
-                        //Port relationship to other ports
-                        ConnectorSet joinedconnectors = connector.AllRefs;
                     if (connectorDirection == "Out")
                     {
                        
@@ -173,40 +169,10 @@ namespace RevitToRDFConverter
                              + $"inst:{flowStateID} fpo:hasUnit 'Pascal'^^xsd:string ." + "\n");
                         }
 
-
-                       
-
-                            foreach (Connector connectedConnector in joinedconnectors)
-                        {
-                            connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
-                            connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
-
-                            if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.SupplyAir
-                            || (Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.SupplyHydronic))
-                            {
-                                connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
-                                    + $"inst:{connectedConnectorID} a fso:Port ." + "\n" 
-                                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n");
-
-                            }
-                            if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.ReturnAir
-                            || Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.ReturnHydronic)
-                            {
-                                connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                sb.Append($"inst:{connectorID} fso:returnsFluidTo inst:{connectedConnectorID} ." + "\n"
-                                    + $"inst:{connectedConnectorID} a fso:Port ." + "\n" 
-                                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-);
-
-                            }
-
-
-
-                        }
                     }
+
+                    //Port relationship to other ports
+                    sb.Append(JoinConnectors(connector, connectorID, componentID));
                 }
             }
 
@@ -319,46 +285,12 @@ namespace RevitToRDFConverter
                     }
 
                     //Port relationship to other ports
-                    ConnectorSet joinedconnectors = connector.AllRefs;
-                    if (connectorDirection == "Out")
-                    {
-                        foreach (Connector connectedConnector in joinedconnectors)
-                        {
-                            connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
-                            connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
-
-                            if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.SupplyAir
-                            || (Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.SupplyHydronic))
-                            {
-                                connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
-                                    + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n");
-
-                            }
-                            if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.ReturnAir
-                            || Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.ReturnHydronic)
-                            {
-                                connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                sb.Append($"inst:{connectorID} fso:returnsFluidTo inst:{connectedConnectorID} ." + "\n"
-                                    + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-);
-
-                            }
-
-
-
-                        }
-                    }
+                    sb.Append(JoinConnectors(connector, connectorID, componentID));
                 }
             }
 
             return sb;
         }
-
 
         public static StringBuilder PipeConnectors(Pipe component, string componentID)
         {
@@ -433,12 +365,8 @@ namespace RevitToRDFConverter
                     //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
                     //}
 
-
-                    //Port relationship to other ports
-                    ConnectorSet joinedconnectors = connector.AllRefs;
                     if (connectorDirection == "Out")
                     {
-
 
                         if (component.LookupParameter("Reynolds Number") != null)
                         {
@@ -458,9 +386,6 @@ namespace RevitToRDFConverter
                              + $"inst:{frictionFactorID} a fpo:FrictionFactor ." + "\n"
                              + $"inst:{frictionFactorID} fpo:hasValue '{frictionFactorValue}'^^xsd:double ." + "\n");
                         }
-
-                       
-
                         if (component.LookupParameter("Flow State") != null)
                         {
                             //Flow State
@@ -471,48 +396,17 @@ namespace RevitToRDFConverter
                              + $"inst:{flowStateID} fpo:hasValue '{flowStateValue}'^^xsd:string ." + "\n"
                              + $"inst:{flowStateID} fpo:hasUnit 'Pascal'^^xsd:string ." + "\n");
                         }
+                    }
 
+                    //Port relationship to other ports
+                    sb.Append(JoinConnectors(connector, connectorID, componentID));
 
-                        foreach (Connector connectedConnector in joinedconnectors)
-                        {
-
-                            connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
-                            connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
-
-                            if (connector.Owner.UniqueId != connectedConnector.Owner.UniqueId ) { 
-                            if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.SupplyAir
-                            || (Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.SupplyHydronic))
-                            {
-                                connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n" 
-                                    + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-                                    );
-
-                            }
-                            if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.ReturnAir
-                            || Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.ReturnHydronic)
-                            {
-                                connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                sb.Append($"inst:{connectorID} fso:returnsFluidTo inst:{connectedConnectorID} ." + "\n"
-                                    + $"inst:{connectedConnectorID} a fso:Port ." + "\n" 
-                                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-);
-
-                            }
-                            }
-
-
-                        }
                     }
                 }
-            }
+            
 
             return sb;
         }
-
 
         public static StringBuilder DuctConnectors(Duct component, string componentID)
         {
@@ -615,7 +509,9 @@ namespace RevitToRDFConverter
                     //     + $"inst:{flowID} fpo:hasValue '{flowValue}'^^xsd:double ." + "\n"
                     //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
                     //}
-
+                    
+                    if (connectorDirection == "Out")
+                    {
                         if (component.LookupParameter("Reynolds number") != null)
                         {
                             //Reynolds number
@@ -637,54 +533,65 @@ namespace RevitToRDFConverter
                              + $"inst:{flowStateID} fpo:hasValue '{flowStateValue}'^^xsd:string ." + "\n"
                              + $"inst:{flowStateID} fpo:hasUnit 'Pascal'^^xsd:string ." + "\n");
                         }
-
+                    }
 
                     //Port relationship to other ports
-                    ConnectorSet joinedconnectors = connector.AllRefs;
-                    if (connectorDirection == "Out")
-                    {
-                        foreach (Connector connectedConnector in joinedconnectors)
-                        {
-                            connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
-                            connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
-
-                            if (connector.Owner.UniqueId != connectedConnector.Owner.UniqueId)
-                            {
-                                if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.SupplyAir
-                                || (Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.SupplyHydronic))
-                                {
-                                    connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                    sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
-                                        + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                        + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-                                        );
-
-                                }
-                                if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.ReturnAir
-                                || Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.ReturnHydronic)
-                                {
-                                    connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                                    sb.Append($"inst:{connectorID} fso:returnsFluidTo inst:{connectedConnectorID} ." + "\n"
-                                        + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                        + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-    );
-
-                                }
-                            }
-
-
-
-                        }
-                    }
+                    sb.Append(JoinConnectors(connector, connectorID, componentID));
                 }
             }
 
             return sb;
         }
 
-       
+        public static StringBuilder JoinConnectors(Connector connector, string connectorID, string componentID)
+        {
+            //Port relationship to other ports
+            
+            StringBuilder sb = new StringBuilder();
+            string connectorDirection = connector.Direction.ToString();
+
+            ConnectorSet joinedconnectors = connector.AllRefs;
+            if (connectorDirection == "Out")
+            {
+
+                foreach (Connector connectedConnector in joinedconnectors)
+                {
+                    string connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
+                    string connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
+
+                    if (connector.Owner.UniqueId != connectedConnector.Owner.UniqueId)
+                    {
+                        if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.SupplyAir
+                        || (Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.SupplyHydronic))
+                        {
+                            string connectedConnectorDirection = connectedConnector.Direction.ToString();
+
+                            sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
+                                + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
+                                + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
+                                );
+
+                        }
+                        if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.ReturnAir
+                        || Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.ReturnHydronic)
+                        {
+                            string connectedConnectorDirection = connectedConnector.Direction.ToString();
+
+                            sb.Append($"inst:{connectorID} fso:returnsFluidTo inst:{connectedConnectorID} ." + "\n"
+                                + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
+                                + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
+);
+
+                        }
+                    }
+
+
+
+                }
+            }
+
+            return sb;
+        }
 
 
 
