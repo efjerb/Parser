@@ -19,10 +19,12 @@ namespace RevitToRDFConverter
 {
     class RelatedPorts
     {
-        public static StringBuilder FamilyInstanceConnectors(FamilyInstance component, string revitID  ,string componentID, StringBuilder sb)
+        public static StringBuilder FamilyInstanceConnectors(FamilyInstance component ,string componentID)
         {
             //Port type
             ConnectorSet connectorSet = component.MEPModel.ConnectorManager.Connectors;
+
+            StringBuilder sb = new StringBuilder();
 
             string connectorID;
             string connectorDirectionID;
@@ -211,10 +213,12 @@ namespace RevitToRDFConverter
             return sb;
         }
 
-        public static StringBuilder HeatExchangerConnectors(FamilyInstance component, string componentID, StringBuilder sb)
+        public static StringBuilder HeatExchangerConnectors(FamilyInstance component, string componentID)
         {
             //Port type
             ConnectorSet connectorSet = component.MEPModel.ConnectorManager.Connectors;
+
+            StringBuilder sb = new StringBuilder();
 
             string connectorID;
             string connectorDirectionID;
@@ -356,10 +360,12 @@ namespace RevitToRDFConverter
         }
 
 
-        public static StringBuilder PipeConnectors(Pipe component, string componentID, StringBuilder sb)
+        public static StringBuilder PipeConnectors(Pipe component, string componentID)
         {
             //Port type
             ConnectorSet connectorSet = component.ConnectorManager.Connectors;
+
+            StringBuilder sb = new StringBuilder();
 
             string connectorID;
             string connectorDirectionID;
@@ -508,10 +514,12 @@ namespace RevitToRDFConverter
         }
 
 
-        public static StringBuilder DuctConnectors(Duct component, string componentID, StringBuilder sb)
+        public static StringBuilder DuctConnectors(Duct component, string componentID)
         {
             //Port type
             ConnectorSet connectorSet = component.ConnectorManager.Connectors;
+
+            StringBuilder sb = new StringBuilder();
 
             string connectorID;
             string connectorDirectionID;
