@@ -475,7 +475,7 @@ namespace RevitToRDFConverter
 
                     }
 
-                    if (connector.Shape.ToString() == "Rectangular")
+                    else if (connector.Shape.ToString() == "Rectangular")
                     {
                         connectorWidthID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                         connectorHeightID = System.Guid.NewGuid().ToString().Replace(' ', '-');
