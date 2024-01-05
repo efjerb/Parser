@@ -497,6 +497,9 @@ namespace RevitToRDFConverter
                             $"inst:{crossSectionalAreaID} fpo:hasValue '{crossSectionalArea}'^^xsd:double ." + "\n" +
                             $"inst:{crossSectionalAreaID} fpo:hasUnit 'Meter'^^xsd:string  ." + "\n");
 
+                        
+
+                    }
                     //if (connector.Flow != null)
                     //{
                     //    //Flow rate
@@ -535,6 +538,12 @@ namespace RevitToRDFConverter
 
                     //Port relationship to other ports
                     sb.Append(JoinConnectors(connector, connectorID, componentID));
+
+                }
+            }
+
+            return sb;
+        }
 
                     }
 
