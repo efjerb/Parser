@@ -584,32 +584,32 @@ namespace RevitToRDFConverter
         {
             StringBuilder sb = new StringBuilder();
             
-            (string portPredicate, string componentPredicate) = GetPredicates(connector);
+            string predicate = GetPredicates(connector);
 
             string connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
             string connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
 
             if (Domain.DomainHvac == connectedConnector.Domain || Domain.DomainPiping == connectedConnector.Domain)
             {
-                sb.Append($"inst:{connectorID} fso:{portPredicate} inst:{connectedConnectorID} ." + "\n"
+                sb.Append($"inst:{connectorID} fso:{predicate} inst:{connectedConnectorID} ." + "\n"
                     + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                    + $"inst:{componentID} fso:{componentPredicate} inst:{connectedComponentID} ." + "\n"
+                    + $"inst:{componentID} fso:{predicate} inst:{connectedComponentID} ." + "\n"
                     );
             }
             return sb;
         }
 
-        public static (string portPredicate, string componentPredicate) GetPredicates(Connector connector)
+        public static string GetPredicates(Connector connector)
         {
             string connectorDirection = connector.Direction.ToString();
             switch (connectorDirection)
             {
                 case "In":
-                    return ("hasFluidFedBy", "hasFluidFedBy");
+                    return "hasFluidFedBy";
                 case "Out":
-                    return ("feedsFluidTo", "feedsFluidTo");
+                    return "feedsFluidTo";
                 default:
-                    return ("exchangesFluidWith", "exchangesFluidWith");
+                    return "exchangesFluidWith";
             }
         }
     }
