@@ -14,6 +14,7 @@ using Autodesk.Revit.DB.Analysis;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
+using System.ComponentModel;
 
 namespace RevitToRDFConverter
 {
@@ -564,47 +565,49 @@ namespace RevitToRDFConverter
             ConnectorSet joinedconnectors = connector.AllRefs;
             if (connectorDirection == "Out")
             {
-
                 foreach (Connector connectedConnector in joinedconnectors)
                 {
-                    string connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
-                    string connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
-
                     if (connector.Owner.UniqueId != connectedConnector.Owner.UniqueId)
                     {
-                        if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.SupplyAir
-                        || (Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.SupplyHydronic))
-                        {
-                            string connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                            sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
-                                + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-                                );
-
-                        }
-                        if (Domain.DomainHvac == connectedConnector.Domain && connector.DuctSystemType == DuctSystemType.ReturnAir
-                        || Domain.DomainPiping == connectedConnector.Domain && connector.PipeSystemType == PipeSystemType.ReturnHydronic)
-                        {
-                            string connectedConnectorDirection = connectedConnector.Direction.ToString();
-
-                            sb.Append($"inst:{connectorID} fso:returnsFluidTo inst:{connectedConnectorID} ." + "\n"
-                                + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                                + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
-);
-
-                        }
+                        sb.Append(InstantiateJoin(connector, connectedConnector, connectorID, componentID));
                     }
-
-
-
                 }
             }
 
             return sb;
         }
 
+        public static StringBuilder InstantiateJoin(Connector connector, Connector connectedConnector, string connectorID, string componentID)
+                        {
+            StringBuilder sb = new StringBuilder();
 
+            (string portPredicate, string componentPredicate) = GetPredicates(connector, connectedConnector);
 
+            string connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
+            string connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
+
+            if (Domain.DomainHvac == connectedConnector.Domain || Domain.DomainPiping == connectedConnector.Domain)
+                        {
+                sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
+                                + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
+                                + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
+);
+                        }
+            return sb;
+                    }
+
+        public static (string portPredicate, string componentPredicate) GetPredicates(Connector connector, Connector connectedConnector)
+        {
+            string connectorDirection = connector.Direction.ToString();
+            switch (connectorDirection)
+            {
+                case "In":
+                    return ("hasFluidFedBy", "hasFluidFedBy");
+                case "Out":
+                    return ("feedsFluidTo", "feedsFluidTo");
+                default:
+                    return ("exchangesFluidWith", "exchangesFluidWith");
+            }
     }
+}
 }
