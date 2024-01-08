@@ -584,7 +584,7 @@ namespace RevitToRDFConverter
         {
             StringBuilder sb = new StringBuilder();
             
-            (string portPredicate, string componentPredicate) = GetPredicates(connector, connectedConnector);
+            (string portPredicate, string componentPredicate) = GetPredicates(connector);
 
             string connectedConnectorID = connectedConnector.Owner.UniqueId.ToString() + "-" + connectedConnector.Id.ToString();
             string connectedComponentID = connectedConnector.Owner.UniqueId.ToString();
@@ -599,7 +599,7 @@ namespace RevitToRDFConverter
             return sb;
         }
 
-        public static (string portPredicate, string componentPredicate) GetPredicates(Connector connector, Connector connectedConnector)
+        public static (string portPredicate, string componentPredicate) GetPredicates(Connector connector)
         {
             string connectorDirection = connector.Direction.ToString();
             switch (connectorDirection)
