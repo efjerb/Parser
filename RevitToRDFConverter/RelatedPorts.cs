@@ -591,9 +591,9 @@ namespace RevitToRDFConverter
 
             if (Domain.DomainHvac == connectedConnector.Domain || Domain.DomainPiping == connectedConnector.Domain)
             {
-                sb.Append($"inst:{connectorID} fso:suppliesFluidTo inst:{connectedConnectorID} ." + "\n"
+                sb.Append($"inst:{connectorID} fso:{portPredicate} inst:{connectedConnectorID} ." + "\n"
                     + $"inst:{connectedConnectorID} a fso:Port ." + "\n"
-                    + $"inst:{componentID} fso:feedsFluidTo inst:{connectedComponentID} ." + "\n"
+                    + $"inst:{componentID} fso:{componentPredicate} inst:{connectedComponentID} ." + "\n"
                     );
             }
             return sb;
