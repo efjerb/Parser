@@ -89,7 +89,7 @@ namespace RevitToRDFConverter
 
         }
 
-        private void ParseVentilationSystem(MechanicalSystem system)
+        private void ParseSystem(MechanicalSystem system)
         {
 
             DuctSystemType systemType = system.SystemType;
@@ -116,6 +116,7 @@ namespace RevitToRDFConverter
             //}
 
             fluidTemperature = 0;
+
 
             switch (systemType)
             {
@@ -167,51 +168,7 @@ namespace RevitToRDFConverter
 
         }
 
-        private void ParseVentilationComponents(MechanicalSystem system)
-        {
-            string systemID = system.UniqueId;
-
-            ElementSet systemComponents = system.DuctNetwork;
-
-            //Relate components to systems
-            foreach (Element component in systemComponents)
-            {
-                string componentID = component.UniqueId;
-                string revitID = component.Id.ToString();
-
-                string componentCategory = component.Category.Name;
-                string componentType;
-
-                
-
-                if (component.LookupParameter("FSC_type") != null)
-                {
-                    componentType = component.LookupParameter("FSC_type").AsValueString();
-                }
-                else
-                {
-                    componentType = component.LookupParameter("Category").AsValueString();
-                }
-                
-                //sb.Append($"inst:{systemID} fso:hasComponent inst:{componentID} ." + "\n");
-
-                MapComponent(new List<string> { systemID }, component);
-            }
-        }
-
-        public void ParseVentilationSystems()
-        {
-            //Get systems
-            FilteredElementCollector ventilationSystemCollector = new FilteredElementCollector(doc).OfClass(typeof(MechanicalSystem));
-            foreach (MechanicalSystem system in ventilationSystemCollector)
-            {
-                ParseVentilationSystem(system);
-
-                ParseVentilationComponents(system);
-            }
-        }
-
-        public void ParsePipingSystem(PipingSystem system)
+        public void ParseSystem(PipingSystem system)
         {
             PipeSystemType systemType = system.SystemType;
             string systemID = system.UniqueId;
@@ -292,7 +249,32 @@ namespace RevitToRDFConverter
         
         }
 
-        public void ParsePipingComponents(PipingSystem system)
+        public void ParseSystem(MEPSystem system)
+        {
+            if (system is MechanicalSystem)
+            {
+                ParseSystem((MechanicalSystem)system);
+            }
+            else if (system is PipingSystem)
+            {
+                ParseSystem((PipingSystem)system);
+            }
+        }
+
+        private void ParseComponentsInSystem(MechanicalSystem system)
+        {
+            string systemID = system.UniqueId;
+
+            ElementSet systemComponents = system.DuctNetwork;
+
+            //Relate components to systems
+            foreach (Element component in systemComponents)
+        {
+                MapComponent(new List<string> { systemID }, component);
+            }
+        }
+
+        public void ParseComponentsInSystem(PipingSystem system)
         {
             string systemID = system.UniqueId;
 
@@ -306,15 +288,15 @@ namespace RevitToRDFConverter
             }
         }
 
-        public void ParseSystem(MEPSystem system)
-        {
-            if (system is MechanicalSystem)
+        public void ParseVentilationSystems()
             {
-                ParseVentilationSystem((MechanicalSystem)system);
-            }
-            else if (system is PipingSystem)
+            //Get systems
+            FilteredElementCollector ventilationSystemCollector = new FilteredElementCollector(doc).OfClass(typeof(MechanicalSystem));
+            foreach (MechanicalSystem system in ventilationSystemCollector)
             {
-                ParsePipingSystem((PipingSystem)system);
+                ParseSystem(system);
+
+                ParseComponentsInSystem(system);
             }
         }
 
@@ -324,9 +306,9 @@ namespace RevitToRDFConverter
             
             foreach (PipingSystem system in hydraulicSystemCollector)
             {
-                ParsePipingSystem(system);
+                ParseSystem(system);
 
-                ParsePipingComponents(system);
+                ParseComponentsInSystem(system);
             }
         }
         
@@ -339,6 +321,7 @@ namespace RevitToRDFConverter
 
             return systems;
         }
+        
         public List<MEPSystem> GetComponentSystems(Pipe component)
         {
             List<MEPSystem> systems = new List<MEPSystem>
@@ -348,6 +331,7 @@ namespace RevitToRDFConverter
 
             return systems;
         }
+        
         public List<MEPSystem> GetComponentSystems(FamilyInstance component)
         {
             List<MEPSystem> systems = new List<MEPSystem>();
@@ -366,6 +350,7 @@ namespace RevitToRDFConverter
             else return null;
             
         }
+        
         public List<MEPSystem> GetComponentSystems(Element component)
         {
             List<MEPSystem> systems;
@@ -389,6 +374,7 @@ namespace RevitToRDFConverter
             return systems;
             
         }
+        
         public static FilteredElementCollector GetVisibleElementCollector(Document doc)
         {
             BuiltInCategory[] categoriesToFilter = new BuiltInCategory[]
@@ -422,6 +408,7 @@ namespace RevitToRDFConverter
             viewCollector.WherePasses(categoryFilter);
             return viewCollector;
         }
+        
         public void ParseVisibleComponents()
         {
             FilteredElementCollector viewCollector = GetVisibleElementCollector(doc);
@@ -1009,6 +996,7 @@ namespace RevitToRDFConverter
             }
 
         }
+        
         public void CreateDuctPart(Duct duct, string componentID, string segmentID, string revitID, double length, ConnectorSet mainConnectors)
         {
             
@@ -1025,6 +1013,7 @@ namespace RevitToRDFConverter
              + $"   fpo:hasValue '{length}'^^xsd:double ;" + "\n"
              + $"   fpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
         }
+        
         public void CreateTap(Duct duct, string componentID, Connector connector, int segmentNumber, ConnectorSet mainConnectors)
         {
             // Find and instantiate the connected tap
