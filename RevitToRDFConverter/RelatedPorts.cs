@@ -524,7 +524,7 @@ namespace RevitToRDFConverter
                     $"inst:{crossSectionalAreaID} fpo:hasValue '{crossSectionalArea}'^^xsd:double ." + "\n" +
                     $"inst:{crossSectionalAreaID} fpo:hasUnit 'Meter'^^xsd:string  ." + "\n");
 
-                
+
             }
             //if (connector.Flow != null)
             //{
@@ -565,6 +565,9 @@ namespace RevitToRDFConverter
             return sb;
         }
 
+
+
+
         public static StringBuilder JoinConnectors(Connector connector, string connectorID, string componentID)
         {
             //Port relationship to other ports
@@ -573,14 +576,11 @@ namespace RevitToRDFConverter
             string connectorDirection = connector.Direction.ToString();
 
             ConnectorSet joinedconnectors = connector.AllRefs;
-            if (connectorDirection == "Out")
+            foreach (Connector connectedConnector in joinedconnectors)
             {
-                foreach (Connector connectedConnector in joinedconnectors)
+                if (connector.Owner.UniqueId != connectedConnector.Owner.UniqueId)
                 {
-                    if (connector.Owner.UniqueId != connectedConnector.Owner.UniqueId)
-                    {
-                        sb.Append(InstantiateJoin(connector, connectedConnector, connectorID, componentID));
-                    }
+                    sb.Append(InstantiateJoin(connector, connectedConnector, connectorID, componentID));
                 }
             }
 
