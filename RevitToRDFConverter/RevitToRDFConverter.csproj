@@ -46,15 +46,14 @@
       <HintPath>packages\RestSharp.107.2.1\lib\netstandard2.0\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPI.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIIFC">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPIIFC.dll</HintPath>
+    <Reference Include="RevitAPIIFC, Version=21.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPIIFC.dll</HintPath>
     </Reference>
     <Reference Include="RevitAPIUI">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPIUI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\..\Program Files\Autodesk\Revit 2024\RevitAPIUI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -98,6 +97,20 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Addin.cs" />
+    <Compile Include="FixFSCTypes.cs" />
+    <Compile Include="FSCTypeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FSCTypeForm.Designer.cs">
+      <DependentUpon>FSCTypeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GraphDBForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GraphDBForm.Designer.cs">
+      <DependentUpon>GraphDBForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HelperFunctions.cs" />
     <Compile Include="post.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="HttpClient.cs" />
@@ -114,8 +127,16 @@
     <None Include="packages.config" />
     <None Include="RDFexporter.addin" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <Content Include="Resources\OldCommand.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="FSCTypeForm.resx">
+      <DependentUpon>FSCTypeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GraphDBForm.resx">
+      <DependentUpon>GraphDBForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
