@@ -5,7 +5,7 @@
 		<FullClassName>RevitToRDFConverter.App</FullClassName>
 		<Text>Export LBD File</Text>
 		<Description>Exports Revit data to RDF data</Description>
-		<Assembly>C:\Users\alikuc\Desktop\codingProjects\revitToWebWithLinkedData\revit-HVAC-plugin\EsperantoRVT\bin\x64\Debug\EsperantoRVT.dll</Assembly>
+		<Assembly>C:\Users\evifj\git\Parser\RevitToRDFConverter\bin\Debug\RevitToRDFConverter.dll</Assembly>
 		<AddInId>f5ceb2c2-61ee-4603-97f5-8cb3ad2ff526</AddInId>
 		<VendorId>AK47</VendorId>
 	</AddIn>

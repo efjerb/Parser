@@ -96,7 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Addin.cs" />
     <Compile Include="FixFSCTypes.cs" />
     <Compile Include="FSCTypeForm.cs">
       <SubType>Form</SubType>
@@ -111,7 +110,6 @@
       <DependentUpon>GraphDBForm.cs</DependentUpon>
     </Compile>
     <Compile Include="HelperFunctions.cs" />
-    <Compile Include="post.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="HttpClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

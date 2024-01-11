@@ -60,8 +60,8 @@ namespace RevitToRDFConverter
                 Assembly.GetExecutingAssembly().Location, "RevitToRDFConverter.Command"
                 )
             {
-                ToolTip = "Short Description that is shown when you hover over the button",
-                LongDescription = "Longer description shown when hover over button for a few seconds",
+                ToolTip = "Parse the current view to RDF",
+                LongDescription = "Parse the current view to RDF using FSO, FPO and BOT to represent levels, spaces and HVAC components",
                 Image = imgSrc,
                 LargeImage = imgSrc
             };
