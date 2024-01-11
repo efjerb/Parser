@@ -455,10 +455,17 @@ namespace RevitToRDFConverter
 
         public static StringBuilder CreateConnector(Element component, Connector connector, string componentID)
         {
+            //Type
+            string connectorID = componentID + "-" + connector.Id;
+
+            return CreateConnector(component, connector, componentID, connectorID);
+        }
+
+        public static StringBuilder CreateConnector(Element component, Connector connector, string componentID, string connectorID)
+        {
             StringBuilder sb = new StringBuilder();
 
             //Type
-            string connectorID = componentID + "-" + connector.Id;
             sb.Append($"inst:{componentID} fso:hasPort inst:{connectorID} ." + "\n"
                 + $"inst:{connectorID} a fso:Port ." + "\n");
 
