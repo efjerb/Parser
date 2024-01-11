@@ -53,7 +53,7 @@ namespace RevitToRDFConverter
             //    writer.WriteLine(reader);
             //}
 
-            GraphDBHTTPHelper.PutData(reader);
+            GraphDBHTTPHelper.OverwriteGraph(reader);
 
             return Result.Succeeded;
         }

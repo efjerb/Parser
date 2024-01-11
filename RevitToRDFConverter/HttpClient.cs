@@ -40,9 +40,9 @@ namespace RevitToRDFConverter
     public class GraphDBHTTPHelper
     {
         private static HttpClient client = new HttpClient();
-        public static bool PutData(string data)
+        public static bool OverwriteRepository(string data)
         {
-            string repositoryID = PromptGraphDBRepositoryID();
+            (string repositoryID, string graphName) = PromptGraphDBRepositoryID();
 
             var data1 = new StringContent(data, Encoding.UTF8, "text/turtle");
 
@@ -55,14 +55,35 @@ namespace RevitToRDFConverter
             throw new Exception($"Failed to POST data: ({response.StatusCode}): {returnValue}");
 
         }
-        public static string PromptGraphDBRepositoryID()
+        public static bool OverwriteGraph(string data)
+        {
+            (string repositoryID, string graphName) = PromptGraphDBRepositoryID();
+
+            var url = $"http://localhost:7200/repositories/{repositoryID}/rdf-graphs/{graphName}";
+
+            // Delete the graph
+            HttpResponseMessage deleteRespone = client.DeleteAsync(url).Result;
+
+
+            var data1 = new StringContent(data, Encoding.UTF8, "text/turtle");
+
+            HttpResponseMessage postResponse = client.PostAsync(url, data1).Result;
+
+            if (postResponse.StatusCode == System.Net.HttpStatusCode.NoContent)
+                return true;
+            string returnValue = postResponse.Content.ReadAsStringAsync().Result;
+            throw new Exception($"Failed to POST data: ({postResponse.StatusCode}): {returnValue}");
+
+        }
+        public static (string reposirotyID, string graphName) PromptGraphDBRepositoryID()
         {
             List<string> repositoryList = GetReposirotyIDs();
             GraphDBForm prompt = new GraphDBForm(repositoryList);
             prompt.ShowDialog();
             string repositoryID = prompt.repositoryId;
+            string graphName = prompt.graphName;
 
-            return repositoryID;
+            return (repositoryID, graphName);
         }
         private static List<string> GetReposirotyIDs()
         {

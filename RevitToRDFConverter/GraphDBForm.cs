@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,6 +17,8 @@ namespace RevitToRDFConverter
     {
         public List<string> repositoryList;
         public string repositoryId;
+        public string graphName;
+        public string graphNamePlaceholder;
         public GraphDBForm(List<string> repositoryList)
         {
             this.repositoryList = repositoryList;
@@ -38,17 +41,31 @@ namespace RevitToRDFConverter
 
         private void GraphDBForms_Load(object sender, EventArgs e)
         {
-
+            graphNamePlaceholder = "Enter a graph name";
+            graphNameTextBox.Text = graphNamePlaceholder;
+            graphNameTextBox.ForeColor = Color.LightGray;
         }
 
         private void okButton_Click(object sender, EventArgs e)
         {
-            repositoryId = repositoryIdDropDown.Text;
 
-            okButton.DialogResult = DialogResult.OK;
 
-            Close();
-            return;
+            if (graphNameTextBox.Text == "" || graphNameTextBox.Text == graphNamePlaceholder)
+            {
+                TaskDialog.Show("No graph name", "Please enter a graph name");
+                
+            }
+            else
+            {
+                repositoryId = repositoryIdDropDown.Text;
+
+                graphName = graphNameTextBox.Text;
+
+                okButton.DialogResult = DialogResult.OK;
+
+                Close();
+                return;
+            }
         }
 
         private void repositoryIdTextBox_TextChanged(object sender, EventArgs e)
@@ -62,6 +79,34 @@ namespace RevitToRDFConverter
         }
 
         private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void graphNameTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void graphNameTextBox_Enter(object sender, EventArgs e)
+        {
+            if (graphNameTextBox.Text == graphNamePlaceholder)
+            {
+                graphNameTextBox.Text = "";
+                graphNameTextBox.ForeColor = Color.Black;
+            }
+        }
+
+        private void graphNameTextBox_Leave(object sender, EventArgs e)
+        {
+            if (graphNameTextBox.Text == "")
+            {
+                graphNameTextBox.Text = graphNamePlaceholder;
+                graphNameTextBox.ForeColor = Color.LightGray;
+            }
+        }
+
+        private void GraphDBForm_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }
