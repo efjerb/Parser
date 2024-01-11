@@ -96,9 +96,9 @@ namespace RevitToRDFConverter
 
             string systemID = system.UniqueId;
             string systemName = system.Name;
-            //    ElementId superSystemType = system.GetTypeId();
-            //    string superSystemName = doc.GetElement(superSystemType).LookupParameter("Family Name").AsValueString();
-            //    string superSystemID = doc.GetElement(superSystemType).UniqueId;
+            ElementId superSystemType = system.GetTypeId();
+            string superSystemName = doc.GetElement(superSystemType).Name;
+            string superSystemID = doc.GetElement(superSystemType).UniqueId;
             string fluidID = System.Guid.NewGuid().ToString().Replace(' ', '-');
             string flowTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
 
@@ -116,11 +116,15 @@ namespace RevitToRDFConverter
             //}
 
             fluidTemperature = 0;
-
+            
 
             switch (systemType)
             {
                 case DuctSystemType.SupplyAir:
+                    sb.Append($"inst:{superSystemID} a fso:SupplySystem ." + "\n" +
+                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
+                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
+
                     sb.Append($"inst:{systemID} a fso:SupplySystem ." + "\n" +
                         $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
 
@@ -136,6 +140,10 @@ namespace RevitToRDFConverter
                         $"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n");
                     break;
                 case DuctSystemType.ReturnAir:
+                    sb.Append($"inst:{superSystemID} a fso:ReturnSystem ." + "\n" +
+                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
+                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
+
                     sb.Append($"inst:{systemID} a fso:ReturnSystem ." + "\n"
                          + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
 
@@ -152,6 +160,10 @@ namespace RevitToRDFConverter
                     break;
                 case
                DuctSystemType.ExhaustAir:
+                    sb.Append($"inst:{superSystemID} a fso:ReturnSystem ." + "\n" +
+                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
+                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
+
                     sb.Append($"inst:{systemID} a fso:ReturnSystem ." + "\n"
                          + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
                           $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
@@ -174,6 +186,8 @@ namespace RevitToRDFConverter
             string systemID = system.UniqueId;
             string systemName = system.Name;
             ElementId superSystemType = system.GetTypeId();
+            string superSystemName = doc.GetElement(superSystemType).Name;
+            string superSystemID = doc.GetElement(superSystemType).UniqueId;
 
             //Fluid
             string fluidID = System.Guid.NewGuid().ToString().Replace(' ', '-');
@@ -190,6 +204,10 @@ namespace RevitToRDFConverter
             switch (systemType)
             {
                 case PipeSystemType.SupplyHydronic:
+                    sb.Append($"inst:{superSystemID} a fso:SupplySystem ." + "\n" +
+                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
+                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
+
                     sb.Append($"inst:{systemID} a fso:SupplySystem ." + "\n"
                         + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
 
@@ -217,6 +235,10 @@ namespace RevitToRDFConverter
                         );
                     break;
                 case PipeSystemType.ReturnHydronic:
+                    sb.Append($"inst:{superSystemID} a fso:ReturnSystem ." + "\n" +
+                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
+                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
+
                     sb.Append($"inst:{systemID} a fso:ReturnSystem ." + "\n" +
                         $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
 
@@ -246,7 +268,7 @@ namespace RevitToRDFConverter
                 default:
                     break;
             }
-        
+
         }
 
         public void ParseSystem(MEPSystem system)
@@ -260,7 +282,7 @@ namespace RevitToRDFConverter
                 ParseSystem((PipingSystem)system);
             }
         }
-
+        
         private void ParseComponentsInSystem(MechanicalSystem system)
         {
             string systemID = system.UniqueId;
@@ -269,7 +291,7 @@ namespace RevitToRDFConverter
 
             //Relate components to systems
             foreach (Element component in systemComponents)
-        {
+            {
                 MapComponent(new List<string> { systemID }, component);
             }
         }
@@ -289,7 +311,7 @@ namespace RevitToRDFConverter
         }
 
         public void ParseVentilationSystems()
-            {
+        {
             //Get systems
             FilteredElementCollector ventilationSystemCollector = new FilteredElementCollector(doc).OfClass(typeof(MechanicalSystem));
             foreach (MechanicalSystem system in ventilationSystemCollector)
@@ -303,7 +325,7 @@ namespace RevitToRDFConverter
         public void ParsePipingSystems()
         {
             FilteredElementCollector hydraulicSystemCollector = new FilteredElementCollector(doc).OfClass(typeof(PipingSystem));
-            
+
             foreach (PipingSystem system in hydraulicSystemCollector)
             {
                 ParseSystem(system);
@@ -901,7 +923,6 @@ namespace RevitToRDFConverter
             
             sb.Append($"inst:{componentID} ex:RevitID \"{revitID}\" ." + "\n");
         }
-
 
         public void SplitSegment(Duct duct)
         {
