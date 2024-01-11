@@ -115,68 +115,43 @@ namespace RevitToRDFConverter
             //    fluidTemperature = 0;
             //}
 
-            fluidTemperature = 0;
-            
+            string fsoType;
 
             switch (systemType)
             {
                 case DuctSystemType.SupplyAir:
-                    sb.Append($"inst:{superSystemID} a fso:SupplySystem ." + "\n" +
-                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
-                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
-
-                    sb.Append($"inst:{systemID} a fso:SupplySystem ." + "\n" +
-                        $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
-
-                        $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
-                        $"inst:{fluidID} a fso:Flow ." + "\n" +
-                        $"inst:{fluidID} fpo:hasFlowType inst:{flowTypeID} ." + "\n" +
-                        $"inst:{flowTypeID} a fpo:FlowType ." + "\n" +
-                        $"inst:{flowTypeID} fpo:hasValue 'Air'^^xsd:string ." + "\n" +
-
-                        $"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
-                        $"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n");
+                    fsoType = "SupplySystem";
                     break;
                 case DuctSystemType.ReturnAir:
-                    sb.Append($"inst:{superSystemID} a fso:ReturnSystem ." + "\n" +
-                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
-                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
-
-                    sb.Append($"inst:{systemID} a fso:ReturnSystem ." + "\n"
-                         + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
-
-                         $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
-                        $"inst:{fluidID} a fso:Flow ." + "\n" +
-                        $"inst:{fluidID} fpo:hasFlowType inst:{flowTypeID} ." + "\n" +
-                        $"inst:{flowTypeID} a fpo:FlowType ." + "\n" +
-                        $"inst:{flowTypeID} fpo:hasValue 'Air'^^xsd:string ." + "\n" +
-
-                        $"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
-                        $"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n");
+                    fsoType = "ReturnSystem";
                     break;
                 case
                DuctSystemType.ExhaustAir:
-                    sb.Append($"inst:{superSystemID} a fso:ReturnSystem ." + "\n" +
+                    fsoType = "ReturnSystem";
+                    break;
+                default:
+                    fsoType = "DistributionSystem";
+                    break;
+            }
+
+            sb.Append($"inst:{superSystemID} a fso:{fsoType} ." + "\n" +
                       $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
                       $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
 
-                    sb.Append($"inst:{systemID} a fso:ReturnSystem ." + "\n"
-                         + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
-                          $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
+            sb.Append($"inst:{systemID} a fso:{fsoType} ." + "\n" +
+                $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n"
 
-                        $"inst:{fluidID} a fso:Flow ." + "\n" +
-                        $"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
-                        $"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n");
-                    break;
-                default:
-                    break;
-            }
+                //$ + "inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
+                //$"inst:{fluidID} a fso:Flow ." + "\n" +
+                //$"inst:{fluidID} fpo:hasFlowType inst:{flowTypeID} ." + "\n" +
+                //$"inst:{flowTypeID} a fpo:FlowType ." + "\n" +
+                //$"inst:{flowTypeID} fpo:hasValue 'Air'^^xsd:string ." + "\n" +
+
+                //$"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
+                //$"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
+                //$"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
+                //$"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n"
+                );
 
         }
 
@@ -190,84 +165,58 @@ namespace RevitToRDFConverter
             string superSystemID = doc.GetElement(superSystemType).UniqueId;
 
             //Fluid
-            string fluidID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-            string flowTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-            string fluidTemperatureID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-            string fluidViscosityID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-            string fluidDensityID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+            //string fluidID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+            //string flowTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+            //string fluidTemperatureID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+            //string fluidViscosityID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+            //string fluidDensityID = System.Guid.NewGuid().ToString().Replace(' ', '-');
 
-            string flowType = doc.GetElement(superSystemType).LookupParameter("Fluid Type").AsValueString();
-            double fluidTemperature = UnitUtils.ConvertFromInternalUnits(system.LookupParameter("Fluid TemperatureX").AsDouble(), UnitTypeId.Celsius);
-            double fluidViscosity = UnitUtils.ConvertFromInternalUnits(doc.GetElement(superSystemType).LookupParameter("Fluid Dynamic Viscosity").AsDouble(), UnitTypeId.PascalSeconds);
-            double fluidDensity = UnitUtils.ConvertFromInternalUnits(doc.GetElement(superSystemType).LookupParameter("Fluid Density").AsDouble(), UnitTypeId.KilogramsPerCubicMeter);
-
+            //string flowType = doc.GetElement(superSystemType).LookupParameter("Fluid Type").AsValueString();
+            //double fluidTemperature = UnitUtils.ConvertFromInternalUnits(system.LookupParameter("Fluid TemperatureX").AsDouble(), UnitTypeId.Celsius);
+            //double fluidViscosity = UnitUtils.ConvertFromInternalUnits(doc.GetElement(superSystemType).LookupParameter("Fluid Dynamic Viscosity").AsDouble(), UnitTypeId.PascalSeconds);
+            //double fluidDensity = UnitUtils.ConvertFromInternalUnits(doc.GetElement(superSystemType).LookupParameter("Fluid Density").AsDouble(), UnitTypeId.KilogramsPerCubicMeter);
+            string fsoType;
             switch (systemType)
             {
                 case PipeSystemType.SupplyHydronic:
-                    sb.Append($"inst:{superSystemID} a fso:SupplySystem ." + "\n" +
-                      $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
-                      $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
-
-                    sb.Append($"inst:{systemID} a fso:SupplySystem ." + "\n"
-                        + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
-
-                        $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
-
-                        $"inst:{fluidID} a fso:Flow ." + "\n" +
-                        $"inst:{fluidID} fpo:hasFlowType inst:{flowTypeID} ." + "\n" +
-                        $"inst:{flowTypeID} a fpo:FlowType ." + "\n" +
-                         $"inst:{flowTypeID} fpo:hasValue '{flowType}'^^xsd:string ." + "\n" +
-
-                        $"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
-                        $"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n" +
-
-                        $"inst:{fluidID} fpo:hasViscosity inst:{fluidViscosityID} ." + "\n" +
-                        $"inst:{fluidViscosityID} a fpo:Viscosity ." + "\n" +
-                        $"inst:{fluidViscosityID} fpo:hasValue '{fluidViscosity}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidViscosityID} fpo:hasUnit 'Pascal per second'^^xsd:string ." + "\n" +
-
-                        $"inst:{fluidID} fpo:hasDensity inst:{fluidDensityID} ." + "\n" +
-                        $"inst:{fluidDensityID} a fpo:Density ." + "\n" +
-                        $"inst:{fluidDensityID} fpo:hasValue '{fluidDensity}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidDensityID} fpo:hasUnit 'Kilograms per cubic meter'^^xsd:string ." + "\n"
-                        );
+                    fsoType = "SupplySystem";
                     break;
                 case PipeSystemType.ReturnHydronic:
-                    sb.Append($"inst:{superSystemID} a fso:ReturnSystem ." + "\n" +
+                    fsoType = "ReturnSystem";
+                    break;
+                default:
+                    fsoType = "DistributionSystem";
+                    break;
+            }
+            sb.Append($"inst:{superSystemID} a fso:{fsoType} ." + "\n" +
                       $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
                       $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
 
-                    sb.Append($"inst:{systemID} a fso:ReturnSystem ." + "\n" +
-                        $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n" +
+            sb.Append($"inst:{systemID} a fso:{fsoType} ." + "\n"
+                + $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n"
 
-                        $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
+                //+ $"inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
 
-                       $"inst:{fluidID} a fso:Flow ." + "\n" +
-                        $"inst:{fluidID} fpo:hasFlowType inst:{flowTypeID} ." + "\n" +
-                        $"inst:{flowTypeID} a fpo:FlowType ." + "\n" +
-                        $"inst:{flowTypeID} fpo:hasValue '{flowType}'^^xsd:string ." + "\n" +
+                //$"inst:{fluidID} a fso:Flow ." + "\n" +
+                //$"inst:{fluidID} fpo:hasFlowType inst:{flowTypeID} ." + "\n" +
+                //$"inst:{flowTypeID} a fpo:FlowType ." + "\n" +
+                // $"inst:{flowTypeID} fpo:hasValue '{flowType}'^^xsd:string ." + "\n" +
 
-                        $"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
-                        $"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n" +
+                //$"inst:{fluidID} fpo:hasTemperature inst:{fluidTemperatureID} ." + "\n" +
+                //$"inst:{fluidTemperatureID} a fpo:Temperature ." + "\n" +
+                //$"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
+                //$"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n" +
 
-                        $"inst:{fluidID} fpo:hasViscosity inst:{fluidViscosityID} ." + "\n" +
-                        $"inst:{fluidViscosityID} a fpo:Viscosity ." + "\n" +
-                        $"inst:{fluidViscosityID} fpo:hasValue '{fluidViscosity}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidViscosityID} fpo:hasUnit 'Pascal per second'^^xsd:string ." + "\n" +
+                //$"inst:{fluidID} fpo:hasViscosity inst:{fluidViscosityID} ." + "\n" +
+                //$"inst:{fluidViscosityID} a fpo:Viscosity ." + "\n" +
+                //$"inst:{fluidViscosityID} fpo:hasValue '{fluidViscosity}'^^xsd:double ." + "\n" +
+                //$"inst:{fluidViscosityID} fpo:hasUnit 'Pascal per second'^^xsd:string ." + "\n" +
 
-                        $"inst:{fluidID} fpo:hasDensity inst:{fluidDensityID} ." + "\n" +
-                        $"inst:{fluidDensityID} a fpo:Density ." + "\n" +
-                        $"inst:{fluidDensityID} fpo:hasValue '{fluidDensity}'^^xsd:double ." + "\n" +
-                        $"inst:{fluidDensityID} fpo:hasUnit 'Kilograms per cubic meter'^^xsd:string ." + "\n"
-                        );
-                    break;
-                default:
-                    break;
-            }
+                //$"inst:{fluidID} fpo:hasDensity inst:{fluidDensityID} ." + "\n" +
+                //$"inst:{fluidDensityID} a fpo:Density ." + "\n" +
+                //$"inst:{fluidDensityID} fpo:hasValue '{fluidDensity}'^^xsd:double ." + "\n" +
+                //$"inst:{fluidDensityID} fpo:hasUnit 'Kilograms per cubic meter'^^xsd:string ." + "\n"
+                );
 
         }
 
@@ -894,12 +843,12 @@ namespace RevitToRDFConverter
                 {
 
                     //DesignHeatPower
-                    string designHeatPowerID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                    double designHeatPowerValue = UnitUtils.ConvertFromInternalUnits(component.LookupParameter("FSC_nomPower").AsDouble(), UnitTypeId.Watts);
-                    sb.Append($"inst:{componentID} fpo:hasDesignHeatingPower inst:{designHeatPowerID} ." + "\n"
-                     + $"inst:{designHeatPowerID} a fpo:DesignHeatingPower ." + "\n"
-                     + $"inst:{designHeatPowerID} fpo:hasValue  '{designHeatPowerValue}'^^xsd:double ." + "\n"
-                     + $"inst:{designHeatPowerID} fpo:hasUnit  'Watts'^^xsd:string ." + "\n");
+                    //string designHeatPowerID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //double designHeatPowerValue = UnitUtils.ConvertFromInternalUnits(component.LookupParameter("FSC_nomPower").AsDouble(), UnitTypeId.Watts);
+                    //sb.Append($"inst:{componentID} fpo:hasDesignHeatingPower inst:{designHeatPowerID} ." + "\n"
+                    // + $"inst:{designHeatPowerID} a fpo:DesignHeatingPower ." + "\n"
+                    // + $"inst:{designHeatPowerID} fpo:hasValue  '{designHeatPowerValue}'^^xsd:double ." + "\n"
+                    // + $"inst:{designHeatPowerID} fpo:hasUnit  'Watts'^^xsd:string ." + "\n");
 
                     string relatedRoomID = GetSpaceID((FamilyInstance)component);
 
