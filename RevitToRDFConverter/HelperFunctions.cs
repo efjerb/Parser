@@ -981,6 +981,12 @@ namespace RevitToRDFConverter
                 // Instantiate the segment
                 CreateDuctPart(duct, componentID, segmentID, revitID, length, mainConnectors);
                 
+                // TODO: Move to CreateDuctPart function
+                foreach (string systemID in systemIDs)
+                {
+                    sb.Append($"inst:{systemID} fso:hasComponent inst:{segmentID} ." + "\n");
+                }
+
                 // Create connectors for the segment, based on the start- and end connector in the "real" duct
                 foreach (Connector mainConnector in mainConnectors)
                 {
