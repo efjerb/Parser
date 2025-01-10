@@ -126,30 +126,30 @@ namespace RevitToRDFConverter
             //    fluidTemperature = 0;
             //}
 
-            string fsoType;
+            string fsoSystemType;
 
             switch (systemType)
             {
                 case DuctSystemType.SupplyAir:
-                    fsoType = "SupplySystem";
+                    fsoSystemType = "SupplySystem";
                     break;
                 case DuctSystemType.ReturnAir:
-                    fsoType = "ReturnSystem";
+                    fsoSystemType = "ReturnSystem";
                     break;
                 case
                DuctSystemType.ExhaustAir:
-                    fsoType = "ReturnSystem";
+                    fsoSystemType = "ReturnSystem";
                     break;
                 default:
-                    fsoType = "DistributionSystem";
+                    fsoSystemType = "DistributionSystem";
                     break;
             }
 
-            sb.Append($"inst:{superSystemID} a fso:{fsoType} ." + "\n" +
+            sb.Append($"inst:{superSystemID} a fso:{fsoSystemType} ." + "\n" +
                       $"inst:{superSystemID} rdfs:label '{superSystemName}'^^xsd:string ." + "\n" +
                       $"inst:{superSystemID} fso:hasSubSystem inst:{systemID} ." + "\n");
 
-            sb.Append($"inst:{systemID} a fso:{fsoType} ." + "\n" +
+            sb.Append($"inst:{systemID} a fso:{fsoSystemType} ." + "\n" +
                 $"inst:{systemID} rdfs:label '{systemName}'^^xsd:string ." + "\n"
 
                 //$ + "inst:{systemID} fso:hasFlow inst:{fluidID} ." + "\n" +
@@ -163,6 +163,8 @@ namespace RevitToRDFConverter
                 //$"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
                 //$"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n"
                 );
+
+            sb.Append($"inst:{this.buildingGuid} fso:hasSubSystem inst:{systemID} ." + "\n");
 
         }
 
@@ -228,6 +230,8 @@ namespace RevitToRDFConverter
                 //$"inst:{fluidDensityID} fpo:hasValue '{fluidDensity}'^^xsd:double ." + "\n" +
                 //$"inst:{fluidDensityID} fpo:hasUnit 'Kilograms per cubic meter'^^xsd:string ." + "\n"
                 );
+
+            sb.Append($"inst:{this.buildingGuid} fso:hasSubSystem inst:{systemID} ." + "\n");
 
         }
 
