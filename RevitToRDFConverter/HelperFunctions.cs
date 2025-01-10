@@ -79,13 +79,22 @@ namespace RevitToRDFConverter
             {
                 if (space.Category.Name == "Spaces" & space.LookupParameter("Area").AsDouble() > 0)
                 {
-                    string spaceName = space.Name.Replace(' ', '-').Replace('\n', '-');
+                    string spaceName = space.LookupParameter("Name").AsString().Replace(' ', '-').Replace('\n', '-');
+                    string spaceNumber = space.Number;
                     string spaceGuid = space.UniqueId.ToString();
                     string isSpaceOf = space.Level.UniqueId;
+                    string spaceID = space.Id.ToString();
+                    double area = UnitUtils.ConvertFromInternalUnits(space.LookupParameter("Area").AsDouble(), UnitTypeId.SquareMeters);
+                    double volume = UnitUtils.ConvertFromInternalUnits(space.LookupParameter("Volume").AsDouble(), UnitTypeId.CubicMeters);
 
-                    sb.Append($"inst:{spaceGuid} a bot:Space ." + "\n" +
-                        $"inst:{spaceGuid} rdfs:label '{spaceName}'^^xsd:string ." + "\n" +
-                        $"inst:{isSpaceOf} bot:hasSpace inst:{spaceGuid} ." + "\n");
+                    sb.Append($"inst:{spaceNumber} a bot:Space ." + "\n" +
+                        $"inst:{spaceNumber} rdfs:label '{spaceName}'^^xsd:string ." + "\n" +
+                        $"inst:{spaceNumber} ex:roomNumber '{spaceNumber}'^^xsd:string ." + "\n" +
+                        $"inst:{spaceNumber} ex:revitGUID '{spaceGuid}'^^xsd:string ." + "\n" +
+                        $"inst:{isSpaceOf} bot:hasSpace inst:{spaceNumber} ." + "\n" +
+                        $"inst:{spaceNumber} ex:revitID '{spaceID}'^^xsd:string ." + "\n" +
+                        $"inst:{spaceNumber} brick:area [ brick:hasUnit unit:M2 ; brick:value {area} ] ." + "\n" +
+                        $"inst:{spaceNumber} brick:volume [ brick:hasUnit unit:M3 ; brick:value {volume} ] .");
                 };
             }
 
