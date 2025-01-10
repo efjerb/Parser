@@ -1088,7 +1088,52 @@ namespace RevitToRDFConverter
             int startConnectorID = startConnector.Id;
             int endConnectorID = endConnector.Id;
             
-            // Join the tap to the duct segments on both sides
+
+            double startFlowRate = UnitUtils.ConvertFromInternalUnits(startConnector.Flow, UnitTypeId.LitersPerSecond);
+            double endFlowRate = UnitUtils.ConvertFromInternalUnits(endConnector.Flow, UnitTypeId.LitersPerSecond);
+
+            // Use the method from RelatedPorts to create the artificial connectors with the specified tapGUID
+            foreach (Connector ductConnector in mainConnectors)
+            {
+                // Use the virtual keyword to avoid naming conflicts with the real connectors
+                string connecterID = tapGUID + "-virtual-" + ductConnector.Id;
+                StringBuilder stringBuilder = RelatedPorts.CreateConnector(duct, ductConnector, tapGUID, connecterID);
+
+                // Get the right flow rates in the connectors
+                double connectorFlowRate = UnitUtils.ConvertFromInternalUnits(ductConnector.Flow, UnitTypeId.LitersPerSecond);
+
+                if (ductConnector == startConnector)
+                {
+                    // If the flow is from the start connector, the flow rate in the tap should be the same as the flow rate in the duct
+                    stringBuilder.Replace($"fpo:hasValue '{connectorFlowRate}'^^xsd:double", $"fpo:hasValue '{ductFlowRate}'^^xsd:double");
+                }
+                else
+                {
+                    double newFlowRate;
+                    if (startFlowRate > endFlowRate)
+                    {
+                        // If the flow is from the end connector, the flow rate in the tap should be the same as the flow rate in the duct minus the flow rate in the tap
+                        newFlowRate = ductFlowRate - flowRate;
+                    }
+                    else
+                    {
+                        // If the flow is from the end connector, the flow rate in the tap should be the same as the flow rate in the duct plus the flow rate in the tap
+                        newFlowRate = ductFlowRate + flowRate;
+                    }
+                    // Limit the flowrate to 0
+                    if (newFlowRate < 0)
+                    {
+                        newFlowRate = 0;
+                    }
+                    stringBuilder.Replace($"fpo:hasValue '{connectorFlowRate}'^^xsd:double", $"fpo:hasValue '{newFlowRate}'^^xsd:double");
+                }
+
+
+                sb.Append(stringBuilder);
+                
+            }
+
+            // Join the tap to the duct parts on both sides
             string startConnectorPredicate = RelatedPorts.GetPredicates(startConnector);
             string endConnectorPredicate = RelatedPorts.GetPredicates(endConnector);
 
