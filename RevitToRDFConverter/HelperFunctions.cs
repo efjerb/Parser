@@ -423,6 +423,31 @@ namespace RevitToRDFConverter
 
         }
 
+        public string GetFSCType(Element component)
+        {
+            string fscType = null;
+
+            try
+            {
+                FamilyInstance familyInstance = component as FamilyInstance;
+
+                if (familyInstance.LookupParameter("FSC_type") != null)
+                {
+                    fscType = familyInstance.LookupParameter("FSC_type").AsValueString();
+                }
+                else if (familyInstance.Symbol.LookupParameter("FSC_type") != null)
+                {
+                    fscType = familyInstance.Symbol.LookupParameter("FSC_type").AsValueString();
+                }
+
+            }
+            catch (Exception)
+            {
+                fscType = null;
+            }
+            return fscType;
+        }
+
         public void MapComponent(List<string> systemIDs, Element component)
         {
             string componentID = component.UniqueId;
