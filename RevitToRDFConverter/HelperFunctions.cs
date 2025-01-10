@@ -12,6 +12,10 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.ApplicationServices;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
+using RestSharp; 
+using System.Web.UI.WebControls;
 
 namespace RevitToRDFConverter
 {
@@ -163,7 +167,7 @@ namespace RevitToRDFConverter
                 //$"inst:{fluidTemperatureID} fpo:hasValue '{fluidTemperature}'^^xsd:double ." + "\n" +
                 //$"inst:{fluidTemperatureID} fpo:hasUnit 'Celcius'^^xsd:string ." + "\n"
                 );
-
+            
             sb.Append($"inst:{this.buildingGuid} fso:hasSubSystem inst:{systemID} ." + "\n");
 
         }
@@ -461,19 +465,16 @@ namespace RevitToRDFConverter
                 // If the duct has more than two connectors, split it into multiple ducts
                 if (duct.ConnectorManager.Connectors.Size > 2)
                 {
-                    SplitSegment(duct);
+                    SplitSegment(duct, systemIDs);
                     return;
                 }
 
                 sb.Append(
                     $"inst:{componentID} rdfs:label \"Duct\" ." + "\n" +
-                $"inst:{componentID} a fso:Duct ." + "\n");
+                    $"inst:{componentID} a fso:Duct ." + "\n");
 
-                if (duct.DuctType.Roughness != null)
-                {
-                    //Roughness
-                    string roughnessID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                    double rougnessValue = duct.DuctType.Roughness;
+                //Roughness
+                double rougnessValue = duct.DuctType.Roughness;
                 sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
                     + $"\ta fpo:Roughness ;" + "\n"
                     + $"\tfpo:hasValue '{rougnessValue}'^^xsd:double ;" + "\n" +
@@ -482,7 +483,6 @@ namespace RevitToRDFConverter
                 if (duct.LookupParameter("Length") != null)
                 {
                     //Length
-                    string lengthID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
                     double lengthValue = UnitUtils.ConvertFromInternalUnits(duct.LookupParameter("Length").AsDouble(), UnitTypeId.Meters);
                     sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
                      + $"\ta fpo:Length ;" + "\n"
@@ -493,7 +493,6 @@ namespace RevitToRDFConverter
                 if (duct.LookupParameter("Hydraulic Diameter") != null)
                 {
                     //Outside diameter
-                    string outsideDiameterID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double outsideDiameterValue = UnitUtils.ConvertFromInternalUnits(duct.LookupParameter("Hydraulic Diameter").AsDouble(), UnitTypeId.Meters);
                     sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
                      + $"\ta fpo:HydraulicDiameter ;" + "\n"
@@ -628,7 +627,8 @@ namespace RevitToRDFConverter
                     //sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
                     // + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
                     // + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
-
+                    
+                    // TODO: Get right length, based on connector locations
                     if (component.LookupParameter("OffsetHeight") != null && component.LookupParameter("OffsetHeight").AsDouble() > 0)
                     {
                         //Length
@@ -746,7 +746,7 @@ namespace RevitToRDFConverter
 
                 }
 
-
+                sb.Append(RelatedPorts.FamilyInstanceConnectors((FamilyInstance)component, componentID));
 
             }
             else if (GetFSCType(component) != null && GetFSCType(component) != "")
@@ -809,7 +809,7 @@ namespace RevitToRDFConverter
                     //     + $"\tfpo:hasCurve  '{powerCurveValue}'^^xsd:string ;" + "\n"
                     //     + $"\tfpo:hasUnit  'PA:m3/h'^^xsd:string ] ." + "\n");
                     //}
-                    }
+                }
 
                 //Valve
                 else if (fscType == "MotorizedValve" || fscType == "BalancingValve")
@@ -836,7 +836,7 @@ namespace RevitToRDFConverter
                     //     + $"\ta fpo:Kvs ;" + "\n"
                     //     + $"\tfpo:hasValue  '{kvsValue}'^^xsd:double ]." + "\n");
                     //}
-                    }
+                }
 
                 //Shunt
                 else if (fscType == "Shunt")
@@ -853,7 +853,6 @@ namespace RevitToRDFConverter
                     //     + $"\ta fpo:CheckValve ;" + "\n"
                     //     + $"\tfpo:hasValue  '{hasCheckValveValue}'^^xsd:string ] ." + "\n");
                     //}
-                    }
                 }
 
                 //Damper
@@ -881,7 +880,6 @@ namespace RevitToRDFConverter
                     //     + $"\ta fpo:Kvs ;" + "\n"
                     //     + $"\tfpo:hasValue  '{kvsValue}'^^xsd:double ]." + "\n");
                     //}
-                    }
                 }
 
                 //Radiator
@@ -903,23 +901,50 @@ namespace RevitToRDFConverter
                         sb.Append($"inst:{componentID} fso:transfersHeatTo inst:{relatedRoomID} ." + "\n");
                     }
                 }
+
+                sb.Append(RelatedPorts.FamilyInstanceConnectors((FamilyInstance)component, componentID));
             }
             else
             {
                 string familyName = component.Name;
                 sb.Append($"inst:{componentID} a fso:Component ." + "\n");
                 sb.Append($"inst:{componentID} ex:rvtTypeName '{familyName}'^^xsd:string ." + "\n");
+                
+                sb.Append(RelatedPorts.FamilyInstanceConnectors((FamilyInstance)component, componentID));
             }
             // This is added in the end, because some components should not be mapped
             foreach (string systemID in systemIDs)
             {
                 sb.Append($"inst:{systemID} fso:hasComponent inst:{componentID} ." + "\n");
             }
+
+            // If the component is in a space, add the relation to the space
+            string spaceID = GetSpaceID(component);
+            if (spaceID != null)
+            {
+                sb.Append($"inst:{spaceID} bot:hasElement inst:{componentID} ." + "\n");
+            }
+
+            // If the component has a BMS_name parameter, add the BMS name to TTL
+            if (component.LookupParameter("BMS_name") != null && component.LookupParameter("BMS_name").AsString() != "" && component.LookupParameter("BMS_name").AsString() != null)
+            {
+                string bmsName = component.LookupParameter("BMS_name").AsString();
+                sb.Append($"inst:{componentID} ex:bmsName '{bmsName}'^^xsd:string ." + "\n");
+            }
             
-            sb.Append($"inst:{componentID} ex:RevitID \"{revitID}\" ." + "\n");
+            // Get all parameters starting with "FSC_" and add them to the TTL
+            foreach (Autodesk.Revit.DB.Parameter parameter in component.Parameters)
+            {
+                if (parameter.Definition.Name.StartsWith("FSC_") && parameter.Definition.Name != "FSC_type")
+                {
+                    sb.Append(ReadFSCParameter(componentID, parameter));                    
+                }
+            }
+
+            sb.Append($"inst:{componentID} ex:revitID \"{revitID}\" ." + "\n");
         }
 
-        public void SplitSegment(Duct duct)
+        public void SplitSegment(Duct duct, List<string> systemIDs)
         {
             string componentID = duct.UniqueId;
             string revitID = duct.Id.ToString();
@@ -958,6 +983,11 @@ namespace RevitToRDFConverter
             List<double> distances = sortedConnectorDistances.Keys.ToList();
             List<Connector> sortedConnectors = sortedConnectorDistances.Values.ToList();
 
+            // Store the maximum flow in a variable
+            double startFlowRate = UnitUtils.ConvertFromInternalUnits(startConnector.Flow, UnitTypeId.LitersPerSecond);
+            double endFlowRate = UnitUtils.ConvertFromInternalUnits(endConnector.Flow, UnitTypeId.LitersPerSecond);
+            double ductFlowRate = startFlowRate;
+
             // Iterate through the sorted dictionary and create duct segments between each connector
             for (int i = 0; i < sortedConnectors.Count; i++)
             {
@@ -979,8 +1009,8 @@ namespace RevitToRDFConverter
                 }
 
                 // Instantiate the segment
-                CreateDuctPart(duct, componentID, segmentID, revitID, length, mainConnectors);
-                
+                CreateDuctPart(componentID, segmentID, revitID, length);
+
                 // TODO: Move to CreateDuctPart function
                 foreach (string systemID in systemIDs)
                 {
@@ -1005,14 +1035,37 @@ namespace RevitToRDFConverter
                     else
                     {
                         // Else use the segment ID to create the connector ID
-                        sb.Append(RelatedPorts.CreateConnector(duct, mainConnector, segmentID));
+                        // Use the virtual keyword to help when instantiating the tap later
+                        string connecterID = segmentID + "-virtual-" + mainConnector.Id;
+                        StringBuilder stringBuilder = RelatedPorts.CreateConnector(duct, mainConnector, segmentID, connecterID);
+                        double connectorFlowRate = UnitUtils.ConvertFromInternalUnits(mainConnector.Flow, UnitTypeId.LitersPerSecond);
+                        
+                        // If the connector has 0 flow, it may be because, the corresponding "real" connector
+                        // is connected to a cap. However, we don't want to inherit this flow, and we take the max flow rate instead.
+                        stringBuilder.Replace($"fpo:hasValue '{connectorFlowRate}'^^xsd:double", $"fpo:hasValue '{ductFlowRate}'^^xsd:double");
+                    
+                        sb.Append(stringBuilder);
                     }
                 }
 
                 // Instantiate the taps
                 if (i != sortedConnectors.Count-1)
                 {
-                    CreateTap(duct, componentID, connector, segmentNumber, mainConnectors);
+                    // Instantiate the tap, and get the flow rate
+                    double tapFlow = CreateTap(duct, componentID, connector, segmentNumber, mainConnectors, systemIDs, ductFlowRate);
+                    if (startFlowRate > endFlowRate)
+                    {
+                        ductFlowRate -= tapFlow;
+                    }
+                    else
+                    {
+                        ductFlowRate += tapFlow;
+                    }
+                    // Limit the flowrate to 0
+                    if (ductFlowRate < 0)
+                    {
+                        ductFlowRate = 0;
+                    }
                 }
 
                 // Instantiate the properties of the segment
@@ -1031,18 +1084,21 @@ namespace RevitToRDFConverter
                      + $"\ta fpo:HydraulicDiameter ;" + "\n"
                      + $"\tfpo:hasValue '{outsideDiameterValue}'^^xsd:double ;" + "\n"
                      + $"\tfpo:hasUnit 'meter'^^xsd:string ] ." + "\n");
+                }
+
+                // TODO: Support opposing taps (currently creates an infinitely small segment if taps are opposing)
             }
 
         }
         
-        public void CreateDuctPart(Duct duct, string componentID, string segmentID, string revitID, double length, ConnectorSet mainConnectors)
+        public void CreateDuctPart(string componentID, string segmentID, string revitID, double length)
         {
             sb.Append($"inst:{segmentID} rdfs:label \"DuctPart\" ." + "\n");
             // Instantiate in RDF (currently with "DuctPart" as the type of the segment)
             sb.Append(
-                $"inst:{componentID} fso:hasPart inst:{segmentID} ." + "\n" +
-                $"inst:{segmentID} a fso:DuctPart ." + "\n" +
-                $"inst:{segmentID} ex:RevitID \"{revitID}\" ." + "\n");
+                //$"inst:{componentID} fso:hasPart inst:{segmentID} ." + "\n" +
+                $"inst:{segmentID} a fso:Duct ." + "\n" +
+                $"inst:{segmentID} ex:revitID \"{revitID}\" ." + "\n");
 
             // Instantiate the length of the segment in RDF
 
@@ -1052,7 +1108,7 @@ namespace RevitToRDFConverter
              + $"   fpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
         }
         
-        public void CreateTap(Duct duct, string componentID, Connector connector, int segmentNumber, ConnectorSet mainConnectors)
+        public double CreateTap(Duct duct, string componentID, Connector connector, int segmentNumber, ConnectorSet mainConnectors, List<string> systemIDs, double ductFlowRate)
         {
             // Find and instantiate the connected tap
             FamilyInstance tap = null;
@@ -1065,29 +1121,45 @@ namespace RevitToRDFConverter
                     break;
                 }
             }
-            if (tap == null) return;
+            if (tap == null) return 0;
             
             string tapGUID = tap.UniqueId;
-            string tapRevitID = tap.Id.ToString();
+            string taprevitID = tap.Id.ToString();
             
             // Instantiate the tap in RDF
             sb.Append($"inst:{tapGUID} a fso:Tap ." + "\n" +
-                      $"inst:{tapGUID} ex:RevitID \"{tapRevitID}\" ." + "\n");
+                      $"inst:{tapGUID} a fso:Tee ." + "\n" +
+                      $"inst:{tapGUID} ex:revitID \"{taprevitID}\" ." + "\n");
 
-            foreach (Connector ductConnector in mainConnectors)
+            foreach (string systemID in systemIDs)
             {
-                // Use the method from RelatedPorts to create the connector with the specified tapGUID
-                sb.Append(RelatedPorts.CreateConnector(duct, ductConnector, tapGUID));
+                sb.Append($"inst:{systemID} fso:hasComponent inst:{tapGUID} ." + "\n");
+            }
 
+
+            // Instantiate the tap's existing connector as a port
+            double flowRate = 0;
+            ConnectorSet tapConnectors = tap.MEPModel.ConnectorManager.Connectors;
+            foreach (Connector tapConnector in tapConnectors)
+            {
+                foreach (Connector tapConnectorAllRef in tapConnector.AllRefs)
+                {
+                    if (tapConnectorAllRef.Owner.UniqueId != componentID && (Domain.DomainHvac == tapConnectorAllRef.Domain || Domain.DomainPiping == tapConnectorAllRef.Domain))
+                    {
+                        sb.Append(RelatedPorts.CreateConnector(tap, tapConnector, tapGUID));
+                        flowRate = UnitUtils.ConvertFromInternalUnits(tapConnector.Flow, UnitTypeId.LitersPerSecond);
+                        
+                        break;
+                    }
+                }
             }
 
             Connector startConnector = mainConnectors.Cast<Connector>().FirstOrDefault<Connector>();
             Connector endConnector = mainConnectors.Cast<Connector>().LastOrDefault<Connector>();
 
-
             int startConnectorID = startConnector.Id;
             int endConnectorID = endConnector.Id;
-            
+
 
             double startFlowRate = UnitUtils.ConvertFromInternalUnits(startConnector.Flow, UnitTypeId.LitersPerSecond);
             double endFlowRate = UnitUtils.ConvertFromInternalUnits(endConnector.Flow, UnitTypeId.LitersPerSecond);
@@ -1137,54 +1209,94 @@ namespace RevitToRDFConverter
             string startConnectorPredicate = RelatedPorts.GetPredicates(startConnector);
             string endConnectorPredicate = RelatedPorts.GetPredicates(endConnector);
 
-            // ID of the segment on one side of the tap
+            // ID of the duct part on one side of the tap
             string segmentId_1 = componentID + "-seg" + segmentNumber;
-            string segmentConnectorId_1 = segmentId_1 + "-" + endConnectorID;
+            string segmentConnectorId_1 = segmentId_1 + "-virtual-" + endConnectorID;
             // The corresponding tap connector's ID
-            string tapConnectorId_1 = tapGUID + "-" + startConnectorID;
+            string tapConnectorId_1 = tapGUID + "-virtual-" + startConnectorID;
 
-            // ID of the segment on the other side of the tap
+            // ID of the duct part on the other side of the tap
             string segmentId_2 = componentID + "-seg" + (segmentNumber + 1);
-            string segmentConnectorId_2 = segmentId_2 + "-" + startConnectorID;
+            string segmentConnectorId_2 = segmentId_2 + "-virtual-" + startConnectorID;
             // The corresponding tap connector's ID
-            string tapConnectorId_2 = tapGUID + "-" + endConnectorID;
+            string tapConnectorId_2 = tapGUID + "-virtual-" + endConnectorID;
 
             sb.Append($"inst:{tapConnectorId_1} fso:{startConnectorPredicate} inst:{segmentConnectorId_1} ." + "\n"
-                    + $"inst:{segmentConnectorId_1} fso:{endConnectorPredicate} inst:{tapConnectorId_1} ." + "\n"
-                    + $"inst:{segmentConnectorId_1} a fso:Port ." + "\n" // Duplicate?
+                    + $"inst:{segmentConnectorId_1} fso:{endConnectorPredicate} inst:{tapConnectorId_1} ." + "\n" // Remove
                     + $"inst:{tapGUID} fso:{startConnectorPredicate} inst:{segmentId_1} ." + "\n"
                     );
 
             sb.Append($"inst:{tapConnectorId_2} fso:{endConnectorPredicate} inst:{segmentConnectorId_2} ." + "\n"
-                    + $"inst:{segmentConnectorId_2} fso:{startConnectorPredicate} inst:{tapConnectorId_2} ." + "\n"
-                    + $"inst:{segmentConnectorId_2} a fso:Port ." + "\n" // Duplicate?
+                    + $"inst:{segmentConnectorId_2} fso:{startConnectorPredicate} inst:{tapConnectorId_2} ." + "\n" // Remove
                     + $"inst:{tapGUID} fso:{endConnectorPredicate} inst:{segmentId_2} ." + "\n"
                     );
 
-
-            // Instantiate the tap's existing connector as a port
-            ConnectorSet tapConnectors = tap.MEPModel.ConnectorManager.Connectors;
-            foreach (Connector tapConnector in tapConnectors)
-            {
-                foreach (Connector tapConnectorAllRef in tapConnector.AllRefs)
-                {
-                    if (tapConnectorAllRef.Owner.UniqueId != componentID)
-                    {
-                        string tapConnectorID = tapGUID + tapConnector.Id;
-                        sb.Append(RelatedPorts.CreateConnector(tap, tapConnector, tapGUID));
-                    }
-                }
-            }
+            return flowRate;
         }
         
         public string GetSpaceID(FamilyInstance component)
         {
             string spaceID = null;
+            string spaceNumber = null;
             if (component.Space != null)
             {
                 spaceID = component.Space.UniqueId;
+                spaceNumber = component.Space.Number;
             }
-            return spaceID;
+            return spaceNumber;
+        }
+        
+        public string GetSpaceID(Element component)
+        {
+            if (component is FamilyInstance)
+            {
+                return GetSpaceID(component as FamilyInstance);
+            }
+            else
+            { return null; }
+            
+        }
+        
+        public string ReadFSCParameter(string componentID, Autodesk.Revit.DB.Parameter parameter)
+        {
+            
+            string paramString = null;
+            string parameterType = parameter.Definition.Name.Replace("FSC_","");
+            parameterType = Char.ToUpper(parameterType[0]) + parameterType.Substring(1); // Change first letter to upper case
+            if (parameter.AsValueString() == null)
+            {
+                return null;
+            }
+            if (parameter.StorageType == StorageType.Double)
+            {
+                ForgeTypeId unitType = parameter.GetUnitTypeId();
+                string unit = UnitUtils.GetTypeCatalogStringForUnit(unitType);
+
+                double parameterValue = UnitUtils.ConvertFromInternalUnits(parameter.AsDouble(), unitType);
+
+                if (unit.ToLower() == "general")
+                {
+                    paramString = $"[a fpo:{parameterType} ; fpo:hasValue '{parameterValue}'^^xsd:decimal]";
+                }
+                else
+                {
+                    paramString = $"[a fpo:{parameterType} ; fpo:hasValue '{parameterValue}'^^xsd:decimal ; fpo:hasUnit '{unit}']";
+                }
+            }
+            else
+            {
+                string parameterValue = parameter.AsValueString();
+                if (parameterValue == "")
+                {
+                    return null;
+                }
+                paramString = $"[a fpo:{parameterType} ; fpo:hasValue '{parameterValue}'^^xsd:string]";
+            }
+
+            string res = $"inst:{componentID} fpo:hasProperty {paramString} . \n";
+
+
+            return res;
         }
     }
     
