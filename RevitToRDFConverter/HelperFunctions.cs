@@ -46,7 +46,9 @@ namespace RevitToRDFConverter
                 "@prefix inst: <https://example.com/inst#> ." + "\n" +
                 "@prefix fpo: <https://w3id.org/fpo#> ." + "\n" +
                 "@prefix ex: <https://example.com/ex#> ." + "\n" +
-                "@prefix ice: <https://example.com/ice#> ." + "\n");
+                "@prefix ice: <https://example.com/ice#> ." + "\n" +
+                "@prefix brick: <https://brickschema.org/schema/Brick#> ." + "\n" +
+                "@prefix unit: <http://qudt.org/vocab/unit/> ." + "\n");
 
             // Get projectName and assign it as buildingName for now. WORKING
             ProjectInfo projectInfo = doc.ProjectInformation;
