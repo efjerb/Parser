@@ -749,9 +749,9 @@ namespace RevitToRDFConverter
 
 
             }
-            else if (component.LookupParameter("FSC_type") != null && component.LookupParameter("FSC_type").AsValueString() != null && component.LookupParameter("FSC_type").AsValueString() != "")
+            else if (GetFSCType(component) != null && GetFSCType(component) != "")
             {
-                string fscType = component.LookupParameter("FSC_type").AsValueString();
+                string fscType = GetFSCType(component);
                 FamilyInstance componentFI = component as FamilyInstance;
                 sb.Append($"inst:{componentID} rdfs:label \"{fscType}\" ." + "\n");
                 //Type 
@@ -810,7 +810,6 @@ namespace RevitToRDFConverter
                     //     + $"\tfpo:hasUnit  'PA:m3/h'^^xsd:string ] ." + "\n");
                     //}
                     }
-                }
 
                 //Valve
                 else if (fscType == "MotorizedValve" || fscType == "BalancingValve")
@@ -838,7 +837,6 @@ namespace RevitToRDFConverter
                     //     + $"\tfpo:hasValue  '{kvsValue}'^^xsd:double ]." + "\n");
                     //}
                     }
-                }
 
                 //Shunt
                 else if (fscType == "Shunt")
