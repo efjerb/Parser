@@ -473,21 +473,20 @@ namespace RevitToRDFConverter
                     //Roughness
                     string roughnessID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double rougnessValue = duct.DuctType.Roughness;
-                    sb.Append($"inst:{componentID} fpo:hasRoughness inst:{roughnessID} ." + "\n"
-                     + $"inst:{roughnessID} a fpo:Roughness ." + "\n"
-                     + $"inst:{roughnessID} fpo:hasValue '{rougnessValue}'^^xsd:double ." + "\n" +
-                     $"inst:{roughnessID} fpo:hasUnit 'Meter'^^xsd:string ." + "\n");
-                }
+                sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    + $"\ta fpo:Roughness ;" + "\n"
+                    + $"\tfpo:hasValue '{rougnessValue}'^^xsd:double ;" + "\n" +
+                    $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
 
                 if (duct.LookupParameter("Length") != null)
                 {
                     //Length
                     string lengthID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
                     double lengthValue = UnitUtils.ConvertFromInternalUnits(duct.LookupParameter("Length").AsDouble(), UnitTypeId.Meters);
-                    sb.Append($"inst:{componentID} fpo:hasLength inst:{lengthID} ." + "\n"
-                     + $"inst:{lengthID} a fpo:Length ." + "\n"
-                     + $"inst:{lengthID} fpo:hasValue '{lengthValue}'^^xsd:double ." + "\n"
-                     + $"inst:{lengthID} fpo:hasUnit 'Meter'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:Length ;" + "\n"
+                     + $"\tfpo:hasValue '{lengthValue}'^^xsd:double ;" + "\n"
+                     + $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
                 }
 
                 if (duct.LookupParameter("Hydraulic Diameter") != null)
@@ -495,19 +494,19 @@ namespace RevitToRDFConverter
                     //Outside diameter
                     string outsideDiameterID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double outsideDiameterValue = UnitUtils.ConvertFromInternalUnits(duct.LookupParameter("Hydraulic Diameter").AsDouble(), UnitTypeId.Meters);
-                    sb.Append($"inst:{componentID} fpo:hasHydraulicDiameter inst:{outsideDiameterID} ." + "\n"
-                     + $"inst:{outsideDiameterID} a fpo:HydraulicDiameter ." + "\n"
-                     + $"inst:{outsideDiameterID} fpo:hasValue '{outsideDiameterValue}'^^xsd:double ." + "\n"
-                     + $"inst:{outsideDiameterID} fpo:hasUnit 'meter'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:HydraulicDiameter ;" + "\n"
+                     + $"\tfpo:hasValue '{outsideDiameterValue}'^^xsd:double ;" + "\n"
+                     + $"\tfpo:hasUnit 'meter'^^xsd:string ] ." + "\n");
                 }
 
 
                 //MaterialType
-                string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                string materialTypeValue = duct.Name;
-                sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
-                 + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
-                 + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
+                //string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                //string materialTypeValue = duct.Name;
+                //sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
+                // + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
+                // + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
 
 
                 if (duct.LookupParameter("Loss Coefficient") != null)
@@ -515,9 +514,9 @@ namespace RevitToRDFConverter
                     //frictionFactor 
                     string frictionFactorID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double frictionFactorValue = duct.LookupParameter("Loss Coefficient").AsDouble();
-                    sb.Append($"inst:{componentID} fpo:hasFrictionFactor inst:{frictionFactorID} ." + "\n"
-                     + $"inst:{frictionFactorID} a fpo:FrictionFactor ." + "\n"
-                     + $"inst:{frictionFactorID} fpo:hasValue '{frictionFactorValue}'^^xsd:double ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:FrictionFactor ;" + "\n"
+                     + $"\tfpo:hasValue '{frictionFactorValue}'^^xsd:double ] ." + "\n");
                 }
 
                 if (duct.LookupParameter("Friction") != null)
@@ -525,10 +524,10 @@ namespace RevitToRDFConverter
                     //friction
                     string frictionID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double frictionIDValue = component.LookupParameter("Friction").AsDouble();
-                    sb.Append($"inst:{componentID} fpo:hasFriction inst:{frictionID} ." + "\n"
-                     + $"inst:{frictionID} a fpo:Friction ." + "\n"
-                     + $"inst:{frictionID} fpo:hasValue '{frictionIDValue}'^^xsd:double ." + "\n"
-                     + $"inst:{frictionID} fpo:hasUnit 'Pascal per meter'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:Friction ;" + "\n"
+                     + $"\tfpo:hasValue '{frictionIDValue}'^^xsd:double ;" + "\n"
+                     + $"\tfpo:hasUnit 'Pascal per meter'^^xsd:string ]." + "\n");
                 }
 
                 sb.Append(RelatedPorts.DuctConnectors(duct, componentID));
@@ -547,29 +546,29 @@ namespace RevitToRDFConverter
                     //Roughness
                     string roughnessID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double rougnessValue = pipe.PipeType.Roughness;
-                    sb.Append($"inst:{componentID} fpo:hasRoughness inst:{roughnessID} ." + "\n"
-                     + $"inst:{roughnessID} a fpo:Roughness ." + "\n"
-                     + $"inst:{roughnessID} fpo:hasValue '{rougnessValue}'^^xsd:double ." + "\n" +
-                     $"inst:{roughnessID} fpo:hasUnit 'Meter'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:Roughness ;" + "\n"
+                     + $"\tfpo:hasValue '{rougnessValue}'^^xsd:double ;" + "\n" +
+                       $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
                 }
                 if (pipe.LookupParameter("Length") != null)
                 {
                     //Length
                     string lengthID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     double lengthValue = UnitUtils.ConvertFromInternalUnits(pipe.LookupParameter("Length").AsDouble(), UnitTypeId.Meters);
-                    sb.Append($"inst:{componentID} fpo:hasLength inst:{lengthID} ." + "\n"
-                     + $"inst:{lengthID} a fpo:Length ." + "\n"
-                     + $"inst:{lengthID} fpo:hasValue '{lengthValue}'^^xsd:double ." + "\n"
-                     + $"inst:{lengthID} fpo:hasUnit 'Meter'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:Length ;" + "\n"
+                     + $"\tfpo:hasValue '{lengthValue}'^^xsd:double ;" + "\n"
+                     + $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
                 }
 
 
                 //MaterialType
-                string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                string materialTypeValue = pipe.Name;
-                sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
-                 + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
-                 + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
+                //string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                //string materialTypeValue = pipe.Name;
+                //sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
+                // + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
+                // + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
 
 
                 sb.Append(RelatedPorts.PipeConnectors(pipe, componentID));
@@ -588,11 +587,11 @@ namespace RevitToRDFConverter
                 {
 
                     //MaterialType
-                    string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
-                    string materialTypeValue = component.Name;
-                    sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
-                     + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
-                     + $"inst:{materialTypeID} fpo:hasValue  '{materialTypeValue}'^^xsd:string ." + "\n");
+                    //string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
+                    //string materialTypeValue = component.Name;
+                    //sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
+                    // + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
+                    // + $"inst:{materialTypeID} fpo:hasValue  '{materialTypeValue}'^^xsd:string ." + "\n");
                 }
 
                 else if (fittingType == "Elbow")
@@ -602,47 +601,47 @@ namespace RevitToRDFConverter
                         //Angle
                         string angleID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
                         double angleValue = UnitUtils.ConvertFromInternalUnits(component.LookupParameter("Angle").AsDouble(), UnitTypeId.Degrees);
-                        sb.Append($"inst:{componentID} fpo:hasAngle inst:{angleID} ." + "\n"
-                         + $"inst:{angleID} a fpo:Angle ." + "\n"
-                         + $"inst:{angleID} fpo:hasValue  '{angleValue}'^^xsd:double ." + "\n"
-                         + $"inst:{angleID} fpo:hasUnit  'Degree'^^xsd:string ." + "\n");
+                        sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                         + $"\ta fpo:Angle ;" + "\n"
+                         + $"\tfpo:hasValue  '{angleValue}'^^xsd:double ;" + "\n"
+                         + $"\tfpo:hasUnit  'Degree'^^xsd:string ] ." + "\n");
                     }
                     //MaterialType
-                    string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
-                    string materialTypeValue = component.Name;
-                    sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
-                     + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
-                     + $"inst:{materialTypeID} fpo:hasValue  '{materialTypeValue}'^^xsd:string ." + "\n");
+                    //string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
+                    //string materialTypeValue = component.Name;
+                    //sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
+                    // + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
+                    // + $"inst:{materialTypeID} fpo:hasValue  '{materialTypeValue}'^^xsd:string ." + "\n");
 
                 }
 
                 else if (fittingType == "Transition")
                 {
                     //MaterialType
-                    string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
-                    string materialTypeValue = component.Name;
-                    sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
-                     + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
-                     + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
+                    //string materialTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
+                    //string materialTypeValue = component.Name;
+                    //sb.Append($"inst:{componentID} fpo:hasMaterialType inst:{materialTypeID} ." + "\n"
+                    // + $"inst:{materialTypeID} a fpo:MaterialType ." + "\n"
+                    // + $"inst:{materialTypeID} fpo:hasValue '{materialTypeValue}'^^xsd:string ." + "\n");
 
                     if (component.LookupParameter("OffsetHeight") != null && component.LookupParameter("OffsetHeight").AsDouble() > 0)
                     {
                         //Length
                         string lengthID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                         double lengthValue = UnitUtils.ConvertFromInternalUnits(component.LookupParameter("OffsetHeight").AsDouble(), UnitTypeId.Meters);
-                        sb.Append($"inst:{componentID} fpo:hasLength inst:{lengthID} ." + "\n"
-                         + $"inst:{lengthID} a fpo:Length ." + "\n"
-                         + $"inst:{lengthID} fpo:hasValue '{lengthValue}'^^xsd:double ." + "\n"
-                         + $"inst:{lengthID} fpo:hasUnit 'Meter'^^xsd:string ." + "\n");
+                        sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                         + $"\ta fpo:Length ;" + "\n"
+                         + $"\tfpo:hasValue '{lengthValue}'^^xsd:double ;" + "\n"
+                         + $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
                     }
                     else
                     {
                         string lengthID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                         double lengthValue = 0.02;
-                        sb.Append($"inst:{componentID} fpo:hasLength inst:{lengthID} ." + "\n"
-                       + $"inst:{lengthID} a fpo:Length ." + "\n"
-                       + $"inst:{lengthID} fpo:hasValue '{lengthValue}'^^xsd:double ." + "\n"
-                       + $"inst:{lengthID} fpo:hasUnit 'Meter'^^xsd:string ." + "\n");
+                        sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                         + $"\ta fpo:Length ;" + "\n"
+                         + $"\tfpo:hasValue '{lengthValue}'^^xsd:double ;" + "\n"
+                         + $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
                     }
                 }
                 
@@ -663,9 +662,9 @@ namespace RevitToRDFConverter
                     //AirTerminalType
                     string airTerminalTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     string airTerminalTypeValue = "outlet";
-                    sb.Append($"inst:{componentID} fpo:hasAirTerminalType inst:{airTerminalTypeID} ." + "\n"
-                     + $"inst:{airTerminalTypeID} a fpo:AirTerminalType ." + "\n"
-                     + $"inst:{airTerminalTypeID} fpo:hasValue '{airTerminalTypeValue}'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:AirTerminalType ;" + "\n"
+                     + $"\tfpo:hasValue '{airTerminalTypeValue}'^^xsd:string ] ." + "\n");
 
                     //Relation to room and space
                     if (relatedRoomID != null)
@@ -685,9 +684,9 @@ namespace RevitToRDFConverter
                     string connectorDirectionID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     string connectorDirection = "In";
 
-                    sb.Append($"inst:{connectorID} fpo:hasFlowDirection inst:{connectorDirectionID} ." + "\n"
-                                            + $"inst:{connectorDirectionID} a fpo:FlowDirection ." + "\n"
-                                            + $"inst:{connectorDirectionID} fpo:hasValue '{connectorDirection}'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{connectorID} fpo:hasFlowDirection [" + "\n"
+                                            + $"\ta fpo:FlowDirection ;" + "\n"
+                                            + $"\tfpo:hasValue '{connectorDirection}'^^xsd:string ] ." + "\n");
                 }
 
 
@@ -696,9 +695,9 @@ namespace RevitToRDFConverter
                     //AirTerminalType
                     string airTerminalTypeID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
                     string airTerminalTypeValue = "inlet";
-                    sb.Append($"inst:{componentID} fpo:hasAirTerminalType inst:{airTerminalTypeID} ." + "\n"
-                     + $"inst:{airTerminalTypeID} a fpo:AirTerminalType ." + "\n"
-                     + $"inst:{airTerminalTypeID} fpo:hasValue '{airTerminalTypeValue}'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:AirTerminalType ;" + "\n"
+                     + $"\tfpo:hasValue '{airTerminalTypeValue}'^^xsd:string ] ." + "\n");
 
                     //Relation to room and space
                     if (relatedRoomID != null)
@@ -715,29 +714,29 @@ namespace RevitToRDFConverter
                     string connectorDirectionID = System.Guid.NewGuid().ToString().Replace(' ', '-');
                     string connectorDirection = "Out";
 
-                    sb.Append($"inst:{connectorID} fpo:hasFlowDirection inst:{connectorDirectionID} ." + "\n"
-                                            + $"inst:{connectorDirectionID} a fpo:FlowDirection ." + "\n"
-                                            + $"inst:{connectorDirectionID} fpo:hasValue '{connectorDirection}'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{connectorID} fpo:hasFlowDirection [" + "\n"
+                                            + $"\ta fpo:FlowDirection ;" + "\n"
+                                            + $"\tfpo:hasValue '{connectorDirection}'^^xsd:string ] ." + "\n");
 
 
                     //Fictive pressureDrop
                     string pressureDropID = System.Guid.NewGuid().ToString().Replace(' ', '-'); ;
                     double pressureDropValue = 5;
-                    sb.Append($"inst:{connectorID} fpo:hasPressureDrop inst:{pressureDropID} ." + "\n"
-                   + $"inst:{pressureDropID} a fpo:PressureDrop ." + "\n"
-                   + $"inst:{pressureDropID} fpo:hasValue '{pressureDropValue}'^^xsd:double ." + "\n"
-                   + $"inst:{pressureDropID} fpo:hasUnit 'Pascal'^^xsd:string ." + "\n");
+                    sb.Append($"inst:{connectorID} fpo:hasPressureDrop [" + "\n"
+                   + $"\ta fpo:PressureDrop ;" + "\n"
+                   + $"\tfpo:hasValue '{pressureDropValue}'^^xsd:double ;" + "\n"
+                   + $"\tfpo:hasUnit 'Pascal'^^xsd:string ] ." + "\n");
 
-                    //if (terminal.LookupParameter("Flow") != null)
-                    //{
-                    //    //Flow rate
-                    //    string flowID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                    //    double flowValue = UnitUtils.ConvertFromInternalUnits(component.LookupParameter("Flow").AsDouble(), UnitTypeId.LitersPerSecond);
-                    //    sb.Append($"inst:{connectorID} fpo:flowRate inst:{flowID} ." + "\n"
-                    //     + $"inst:{flowID} a fpo:FlowRate ." + "\n"
-                    //     + $"inst:{flowID} fpo:hasValue '{flowValue}'^^xsd:double ." + "\n"
-                    //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
-                    //}
+                    if (terminal.LookupParameter("Flow") != null)
+                    {
+                        //Flow rate
+                        string flowID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                        double flowValue = UnitUtils.ConvertFromInternalUnits(component.LookupParameter("Flow").AsDouble(), UnitTypeId.LitersPerSecond);
+                        sb.Append($"inst:{connectorID} fpo:flowRate [" + "\n"
+                         + $"\ta fpo:FlowRate ;" + "\n"
+                         + $"\tfpo:hasValue '{flowValue}'^^xsd:double ;" + "\n"
+                         + $"\tfpo:hasUnit 'Liters per second'^^xsd:string ] ." + "\n");
+                    }
 
 
                 }
@@ -757,53 +756,54 @@ namespace RevitToRDFConverter
                 if (fscType == "Fan")
                 {
                     
-                    if (component.LookupParameter("FSC_pressureCurve") != null)
-                    {
-                        //PressureCurve
-                        string pressureCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        string pressureCurveValue = component.LookupParameter("FSC_pressureCurve").AsString();
-                        sb.Append($"inst:{componentID} fpo:hasPressureCurve inst:{pressureCurveID} ." + "\n"
-                         + $"inst:{pressureCurveID} a fpo:PressureCurve ." + "\n"
-                         + $"inst:{pressureCurveID} fpo:hasCurve  '{pressureCurveValue}'^^xsd:string ." + "\n"
-                         + $"inst:{pressureCurveID} fpo:hasUnit  'PA:m3/h'^^xsd:string ." + "\n");
-                    }
+                    //if (component.LookupParameter("FSC_pressureCurve") != null)
+                    //{
+                    //    //PressureCurve
+                    //    string pressureCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    string pressureCurveValue = component.LookupParameter("FSC_pressureCurve").AsString();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:PressureCurve ;" + "\n"
+                    //     + $"\tfpo:hasCurve  '{pressureCurveValue}'^^xsd:string ;" + "\n"
+                    //     + $"\tfpo:hasUnit  'PA:m3/h'^^xsd:string ] ." + "\n");
+                    //}
 
-                    if (component.LookupParameter("FSC_powerCurve") != null)
-                    {
-                        //PowerCurve
-                        string powerCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        string powerCurveValue = component.LookupParameter("FSC_powerCurve").AsString();
-                        sb.Append($"inst:{componentID} fpo:hasPowerCurve inst:{powerCurveID} ." + "\n"
-                         + $"inst:{powerCurveID} a fpo:PowerCurve ." + "\n"
-                         + $"inst:{powerCurveID} fpo:hasCurve  '{powerCurveValue}'^^xsd:string ." + "\n"
-                         + $"inst:{powerCurveID} fpo:hasUnit  'PA:m3/h'^^xsd:string ." + "\n");
-                    }
+                    //if (component.LookupParameter("FSC_powerCurve") != null)
+                    //{
+                    //    //PowerCurve
+                    //    string powerCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    string powerCurveValue = component.LookupParameter("FSC_powerCurve").AsString();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:PowerCurve ;" + "\n"
+                    //     + $"\tfpo:hasCurve  '{powerCurveValue}'^^xsd:string ;" + "\n"
+                    //     + $"\tfpo:hasUnit  'PA:m3/h'^^xsd:string ] ." + "\n");
+                    //}
 
                 }
                 
                 //Pump
                 else if (fscType == "Pump")
                 {
-                    if (component.LookupParameter("FSC_pressureCurve") != null)
-                    {
-                        //PressureCurve
-                        string pressureCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        string pressureCurveValue = component.LookupParameter("FSC_pressureCurve").AsString();
-                        sb.Append($"inst:{componentID} fpo:hasPressureCurve inst:{pressureCurveID} ." + "\n"
-                         + $"inst:{pressureCurveID} a fpo:PressureCurve ." + "\n"
-                         + $"inst:{pressureCurveID} fpo:hasCurve  '{pressureCurveValue}'^^xsd:string ." + "\n"
-                         + $"inst:{pressureCurveID} fpo:hasUnit  'PA:m3/h'^^xsd:string ." + "\n");
-                    }
+                    //if (component.LookupParameter("FSC_pressureCurve") != null)
+                    //{
+                    //    //PressureCurve
+                    //    string pressureCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    string pressureCurveValue = component.LookupParameter("FSC_pressureCurve").AsString();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:PressureCurve ;" + "\n"
+                    //     + $"\tfpo:hasCurve  '{pressureCurveValue}'^^xsd:string ;" + "\n"
+                    //     + $"\tfpo:hasUnit  'PA:m3/h'^^xsd:string ] ." + "\n");
+                    //}
 
-                    if (component.LookupParameter("FSC_powerCurve") != null)
-                    {
-                        //PowerCurve
-                        string powerCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        string powerCurveValue = component.LookupParameter("FSC_powerCurve").AsString();
-                        sb.Append($"inst:{componentID} fpo:hasPowerCurve inst:{powerCurveID} ." + "\n"
-                         + $"inst:{powerCurveID} a fpo:PowerCurve ." + "\n"
-                         + $"inst:{powerCurveID} fpo:hasCurve  '{powerCurveValue}'^^xsd:string ." + "\n"
-                         + $"inst:{powerCurveID} fpo:hasUnit  'PA:m3/h'^^xsd:string ." + "\n");
+                    //if (component.LookupParameter("FSC_powerCurve") != null)
+                    //{
+                    //    //PowerCurve
+                    //    string powerCurveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    string powerCurveValue = component.LookupParameter("FSC_powerCurve").AsString();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:PowerCurve ;" + "\n"
+                    //     + $"\tfpo:hasCurve  '{powerCurveValue}'^^xsd:string ;" + "\n"
+                    //     + $"\tfpo:hasUnit  'PA:m3/h'^^xsd:string ] ." + "\n");
+                    //}
                     }
                 }
 
@@ -813,24 +813,25 @@ namespace RevitToRDFConverter
                     //Type 
                     sb.Append($"fso:{fscType} rdfs:subClassOf fso:Valve ." + "\n");
 
-                    if (component.LookupParameter("FSC_kv") != null)
-                    {
-                        //Kv
-                        string kvID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        double kvValue = component.LookupParameter("FSC_kv").AsDouble();
-                        sb.Append($"inst:{componentID} fpo:hasKv inst:{kvID} ." + "\n"
-                         + $"inst:{kvID} a fpo:Kv ." + "\n"
-                         + $"inst:{kvID} fpo:hasValue  '{kvValue}'^^xsd:double ." + "\n");
-                    }
+                    //if (component.LookupParameter("FSC_kv") != null)
+                    //{
+                    //    //Kv
+                    //    string kvID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    double kvValue = component.LookupParameter("FSC_kv").AsDouble();
+                    //    sb.Append($"inst:{componentID} fpo:hasKv [" + "\n"
+                    //     + $"\ta fpo:Kv ;" + "\n"
+                    //     + $"\tfpo:hasValue  '{kvValue}'^^xsd:double ]." + "\n");
+                    //}
 
-                    if (component.LookupParameter("FSC_kvs") != null)
-                    {
-                        //Kvs
-                        string kvsID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        double kvsValue = component.LookupParameter("FSC_kvs").AsDouble();
-                        sb.Append($"inst:{componentID} fpo:hasKvs inst:{kvsID} ." + "\n"
-                             + $"inst:{kvsID} a fpo:Kvs ." + "\n"
-                             + $"inst:{kvsID} fpo:hasValue  '{kvsValue}'^^xsd:double ." + "\n");
+                    //if (component.LookupParameter("FSC_kvs") != null)
+                    //{
+                    //    //Kvs
+                    //    string kvsID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    double kvsValue = component.LookupParameter("FSC_kvs").AsDouble();
+                    //    sb.Append($"inst:{componentID} fpo:hasKvs [" + "\n"
+                    //     + $"\ta fpo:Kvs ;" + "\n"
+                    //     + $"\tfpo:hasValue  '{kvsValue}'^^xsd:double ]." + "\n");
+                    //}
                     }
                 }
 
@@ -840,14 +841,15 @@ namespace RevitToRDFConverter
                     //Type 
                     sb.Append($"fso:{fscType} rdfs:subClassOf fpo:Valve ." + "\n");
 
-                    if (component.LookupParameter("FSC_hasCheckValve") != null)
-                    {
-                        //hasCheckValve
-                        string hasCheckValveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        string hasCheckValveValue = component.LookupParameter("FSC_hasCheckValve").AsValueString();
-                        sb.Append($"inst:{componentID} fpo:hasCheckValve inst:{hasCheckValveID} ." + "\n"
-                         + $"inst:{hasCheckValveID} a fpo:CheckValve ." + "\n"
-                         + $"inst:{hasCheckValveID} fpo:hasValue  '{hasCheckValveValue}'^^xsd:string ." + "\n");
+                    //if (component.LookupParameter("FSC_hasCheckValve") != null)
+                    //{
+                    //    //hasCheckValve
+                    //    string hasCheckValveID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    string hasCheckValveValue = component.LookupParameter("FSC_hasCheckValve").AsValueString();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:CheckValve ;" + "\n"
+                    //     + $"\tfpo:hasValue  '{hasCheckValveValue}'^^xsd:string ] ." + "\n");
+                    //}
                     }
                 }
 
@@ -857,24 +859,25 @@ namespace RevitToRDFConverter
                     //Type 
                     sb.Append($"fso:{fscType} rdfs:subClassOf fpo:Damper ." + "\n");
 
-                    if (component.LookupParameter("FSC_kv") != null)
-                    {
-                        //Kv
-                        string kvID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        double kvValue = component.LookupParameter("FSC_kv").AsDouble();
-                        sb.Append($"inst:{componentID} fpo:hasKv inst:{kvID} ." + "\n"
-                         + $"inst:{kvID} a fpo:Kv ." + "\n"
-                         + $"inst:{kvID} fpo:hasValue  '{kvValue}'^^xsd:double ." + "\n");
-                    }
+                    //if (component.LookupParameter("FSC_kv") != null)
+                    //{
+                    //    //Kv
+                    //    string kvID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    double kvValue = component.LookupParameter("FSC_kv").AsDouble();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:Kv ;" + "\n"
+                    //     + $"\tfpo:hasValue  '{kvValue}'^^xsd:double ]." + "\n");
+                    //}
 
-                    if (component.LookupParameter("FSC_kvs") != null)
-                    {
-                        //Kvs
-                        string kvsID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                        double kvsValue = component.LookupParameter("FSC_kvs").AsDouble();
-                        sb.Append($"inst:{componentID} fpo:hasKvs inst:{kvsID} ." + "\n"
-                         + $"inst:{kvsID} a fpo:Kvs ." + "\n"
-                         + $"inst:{kvsID} fpo:hasValue  '{kvsValue}'^^xsd:double ." + "\n");
+                    //if (component.LookupParameter("FSC_kvs") != null)
+                    //{
+                    //    //Kvs
+                    //    string kvsID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                    //    double kvsValue = component.LookupParameter("FSC_kvs").AsDouble();
+                    //    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                    //     + $"\ta fpo:Kvs ;" + "\n"
+                    //     + $"\tfpo:hasValue  '{kvsValue}'^^xsd:double ]." + "\n");
+                    //}
                     }
                 }
 
@@ -1003,6 +1006,22 @@ namespace RevitToRDFConverter
                     CreateTap(duct, componentID, connector, segmentNumber, mainConnectors);
                 }
 
+                // Instantiate the properties of the segment
+                //Roughness
+                double rougnessValue = duct.DuctType.Roughness;
+                sb.Append($"inst:{segmentID} fpo:hasProperty [" + "\n"
+                    + $"\ta fpo:Roughness ;" + "\n"
+                    + $"\tfpo:hasValue '{rougnessValue}'^^xsd:double ;" + "\n" +
+                    $"\tfpo:hasUnit 'Meter'^^xsd:string ] ." + "\n");
+
+                if (duct.LookupParameter("Hydraulic Diameter") != null)
+                {
+                    //Outside diameter
+                    double outsideDiameterValue = UnitUtils.ConvertFromInternalUnits(duct.LookupParameter("Hydraulic Diameter").AsDouble(), UnitTypeId.Meters);
+                    sb.Append($"inst:{componentID} fpo:hasProperty [" + "\n"
+                     + $"\ta fpo:HydraulicDiameter ;" + "\n"
+                     + $"\tfpo:hasValue '{outsideDiameterValue}'^^xsd:double ;" + "\n"
+                     + $"\tfpo:hasUnit 'meter'^^xsd:string ] ." + "\n");
             }
 
         }
