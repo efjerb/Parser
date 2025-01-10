@@ -94,7 +94,7 @@ namespace RevitToRDFConverter
                         connectorHeight = UnitUtils.ConvertFromInternalUnits(connector.Height, UnitTypeId.Meters);
                         connectorWidth = UnitUtils.ConvertFromInternalUnits(connector.Width, UnitTypeId.Meters);
                         sb.Append($"inst:{connectorID} fpo:hasHeight inst:{connectorHeightID} ." + "\n" +
-                            $"inst:{connectorHeightID} a fpo:Heigth ." + "\n" +
+                            $"inst:{connectorHeightID} a fpo:Height ." + "\n" +
                             $"inst:{connectorHeightID} fpo:hasValue '{connectorHeight}'^^xsd:double ." + "\n" +
                             $"inst:{connectorHeightID} fpo:hasUnit 'Meter'^^xsd:string  ." + "\n" +
                             $"inst:{connectorID} fpo:hasWidth inst:{connectorWidthID} ." + "\n" +
@@ -112,16 +112,16 @@ namespace RevitToRDFConverter
 
                     }
 
-                    //if (connector.Flow != null)
-                    //{
-                    //    //Flow rate
-                    //    string flowID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-                    //    double flowValue = UnitUtils.ConvertFromInternalUnits(connector.Flow, UnitTypeId.LitersPerSecond);
-                    //    sb.Append($"inst:{connectorID} fpo:hasFlowRate inst:{flowID} ." + "\n"
-                    //     + $"inst:{flowID} a fpo:FlowRate ." + "\n"
-                    //     + $"inst:{flowID} fpo:hasValue '{flowValue}'^^xsd:double ." + "\n"
-                    //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
-                    //}
+                    if (connector.Flow != null)
+                    {
+                        //Flow rate
+                        string flowID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                        double flowValue = UnitUtils.ConvertFromInternalUnits(connector.Flow, UnitTypeId.LitersPerSecond);
+                        sb.Append($"inst:{connectorID} fpo:hasFlowRate inst:{flowID} ." + "\n"
+                         + $"inst:{flowID} a fpo:FlowRate ." + "\n"
+                         + $"inst:{flowID} fpo:hasValue '{flowValue}'^^xsd:double ." + "\n"
+                         + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
+                    }
 
                     if (connectorDirection == "Out")
                     {
@@ -157,7 +157,7 @@ namespace RevitToRDFConverter
                              + $"inst:{frictionFactorID} a fpo:FrictionFactor ." + "\n"
                              + $"inst:{frictionFactorID} fpo:hasValue '{frictionFactorValue}'^^xsd:double ." + "\n");
                         }
-
+                        
 
                         if (component.LookupParameter("Flow State") != null)
                             {
@@ -509,7 +509,7 @@ namespace RevitToRDFConverter
                 double connectorHeight = UnitUtils.ConvertFromInternalUnits(connector.Height, UnitTypeId.Meters);
                 double connectorWidth = UnitUtils.ConvertFromInternalUnits(connector.Width, UnitTypeId.Meters);
                 sb.Append($"inst:{connectorID} fpo:hasHeight inst:{connectorHeightID} ." + "\n" +
-                    $"inst:{connectorHeightID} a fpo:Heigth ." + "\n" +
+                    $"inst:{connectorHeightID} a fpo:Height ." + "\n" +
                     $"inst:{connectorHeightID} fpo:hasValue '{connectorHeight}'^^xsd:double ." + "\n" +
                     $"inst:{connectorHeightID} fpo:hasUnit 'Meter'^^xsd:string  ." + "\n" +
                     $"inst:{connectorID} fpo:hasWidth inst:{connectorWidthID} ." + "\n" +
@@ -526,16 +526,16 @@ namespace RevitToRDFConverter
 
 
             }
-            //if (connector.Flow != null)
-            //{
-            //    //Flow rate
-            //    string flowID = System.Guid.NewGuid().ToString().Replace(' ', '-');
-            //    double flowValue = UnitUtils.ConvertFromInternalUnits(connector.Flow, UnitTypeId.LitersPerSecond);
-            //    sb.Append($"inst:{connectorID} fpo:hasFlowRate inst:{flowID} ." + "\n"
-            //     + $"inst:{flowID} a fpo:FlowRate ." + "\n"
-            //     + $"inst:{flowID} fpo:hasValue '{flowValue}'^^xsd:double ." + "\n"
-            //     + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
-            //}
+            if (connector.Flow != null)
+            {
+                //Flow rate
+                string flowID = System.Guid.NewGuid().ToString().Replace(' ', '-');
+                double flowValue = UnitUtils.ConvertFromInternalUnits(connector.Flow, UnitTypeId.LitersPerSecond);
+                sb.Append($"inst:{connectorID} fpo:hasFlowRate inst:{flowID} ." + "\n"
+                 + $"inst:{flowID} a fpo:FlowRate ." + "\n"
+                 + $"inst:{flowID} fpo:hasValue '{flowValue}'^^xsd:double ." + "\n"
+                 + $"inst:{flowID} fpo:hasUnit 'Liters per second'^^xsd:string ." + "\n");
+            }
 
             if (connectorDirection == "Out")
             {
