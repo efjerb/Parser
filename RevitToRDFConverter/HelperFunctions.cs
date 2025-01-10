@@ -466,6 +466,7 @@ namespace RevitToRDFConverter
                 }
 
                 sb.Append(
+                    $"inst:{componentID} rdfs:label \"Duct\" ." + "\n" +
                 $"inst:{componentID} a fso:Duct ." + "\n");
 
                 if (duct.DuctType.Roughness != null)
@@ -577,10 +578,14 @@ namespace RevitToRDFConverter
             {
                 MEPModel fitting = ((FamilyInstance)component).MEPModel;
                 string fittingType = ((MechanicalFitting)fitting).PartType.ToString();
+                
+                sb.Append($"inst:{componentID} rdfs:label \"{fittingType}\" ." + "\n");
+                
                 if (fittingType == "TapAdjustable" || fittingType == "TapPerpendicular")
                 {
                     return;
                 }
+
                 sb.Append($"inst:{componentID} a fso:{fittingType} ." + "\n");
 
                 if (fittingType == "Tee")
@@ -654,7 +659,7 @@ namespace RevitToRDFConverter
 
                 //Type
                 sb.Append($"inst:{componentID} a fso:AirTerminal ." + "\n");
-
+                sb.Append($"inst:{componentID} rdfs:label \"AirTerminal\" ." + "\n");
                 string relatedRoomID = GetSpaceID(terminal);
 
                 if (terminal.LookupParameter("System Classification").AsString() == "Return Air")
@@ -748,7 +753,7 @@ namespace RevitToRDFConverter
             {
                 string fscType = component.LookupParameter("FSC_type").AsValueString();
                 FamilyInstance componentFI = component as FamilyInstance;
-                
+                sb.Append($"inst:{componentID} rdfs:label \"{fscType}\" ." + "\n");
                 //Type 
                 sb.Append($"inst:{componentID} a fso:{fscType} ." + "\n");
 
@@ -1028,7 +1033,7 @@ namespace RevitToRDFConverter
         
         public void CreateDuctPart(Duct duct, string componentID, string segmentID, string revitID, double length, ConnectorSet mainConnectors)
         {
-            
+            sb.Append($"inst:{segmentID} rdfs:label \"DuctPart\" ." + "\n");
             // Instantiate in RDF (currently with "DuctPart" as the type of the segment)
             sb.Append(
                 $"inst:{componentID} fso:hasPart inst:{segmentID} ." + "\n" +
