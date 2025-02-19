@@ -15,6 +15,8 @@ using Autodesk.Revit.DB.Analysis;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
+using System.Globalization;
+using System.Threading;
 namespace RevitToRDFConverter
 {
 
@@ -26,6 +28,7 @@ namespace RevitToRDFConverter
     {
         Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
             UIApplication uiapp = commandData.Application;
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Application app = uiapp.Application;
@@ -45,13 +48,13 @@ namespace RevitToRDFConverter
             // Encode to ASCII basics (e.g., convert æ, ø & å to ?)
             Encoding encoding;
             encoding = Encoding.ASCII;
-            reader = encoding.GetString(encoding.GetBytes(reader));
+            //reader = encoding.GetString(encoding.GetBytes(reader));
 
-            //string fullPath = "C:\\Users\\evifj\\Desktop\\testOOP.ttl";
-            //using (StreamWriter writer = new StreamWriter(fullPath))
-            //{
-            //    writer.WriteLine(reader);
-            //}
+            string fullPath = "C:\\Users\\evifj\\Desktop\\testOOP.ttl";
+            using (StreamWriter writer = new StreamWriter(fullPath))
+            {
+                writer.WriteLine(reader);
+            }
 
             GraphDBHTTPHelper.OverwriteGraph(reader);
 
