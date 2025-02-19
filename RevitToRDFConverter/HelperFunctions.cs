@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Collections.Generic;
 using System.Linq;
@@ -940,6 +940,20 @@ namespace RevitToRDFConverter
                     sb.Append(ReadFSCParameter(componentID, parameter));                    
                 }
             }
+            // Get all parameters from the family symbol
+            if (component is FamilyInstance)
+            {
+                FamilyInstance familyInstance = component as FamilyInstance;
+                FamilySymbol familySymbol = familyInstance.Symbol;
+                foreach (Autodesk.Revit.DB.Parameter parameter in familySymbol.Parameters)
+                {
+                    if (parameter.Definition.Name.StartsWith("FSC_") && parameter.Definition.Name != "FSC_type")
+                    {
+                        sb.Append(ReadFSCParameter(componentID, parameter));
+                    }
+                }
+            }
+
 
             sb.Append($"inst:{componentID} ex:revitID \"{revitID}\" ." + "\n");
         }
