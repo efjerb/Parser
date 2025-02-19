@@ -436,7 +436,7 @@ namespace RevitToRDFConverter
             {
                 FamilyInstance familyInstance = component as FamilyInstance;
 
-                if (familyInstance.LookupParameter("FSC_type") != null)
+                if (familyInstance.LookupParameter("FSC_type") != null && familyInstance.LookupParameter("FSC_type").AsValueString() != null)
                 {
                     fscType = familyInstance.LookupParameter("FSC_type").AsValueString();
                 }
