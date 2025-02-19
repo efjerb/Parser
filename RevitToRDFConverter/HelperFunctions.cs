@@ -453,6 +453,12 @@ namespace RevitToRDFConverter
             return fscType;
         }
 
+        public void CreateRDFsubclass(string subclass, string superclass)
+        {
+            sb.Append($"{subclass} rdf:type owl:Class ." + "\n" +
+                      $"{subclass} rdfs:subClassOf {superclass} ." + "\n");
+        }
+
         public void MapComponent(List<string> systemIDs, Element component)
         {
             string componentID = component.UniqueId;
@@ -580,10 +586,12 @@ namespace RevitToRDFConverter
                 string fittingType = ((MechanicalFitting)fitting).PartType.ToString();
                 
                 sb.Append($"inst:{componentID} rdfs:label \"{fittingType}\" ." + "\n");
-                
+
                 if (fittingType == "TapAdjustable" || fittingType == "TapPerpendicular")
                 {
-                    return;
+                    fittingType = "Tap";
+                    CreateRDFsubclass($"fso:{fittingType}", "fso:Fitting");
+
                 }
 
                 sb.Append($"inst:{componentID} a fso:{fittingType} ." + "\n");
@@ -816,8 +824,7 @@ namespace RevitToRDFConverter
                 else if (fscType == "MotorizedValve" || fscType == "BalancingValve")
                 {
                     //Type 
-                    sb.Append($"fso:{fscType} rdfs:subClassOf fso:Valve ." + "\n");
-
+                    CreateRDFsubclass($"fso:{fscType}", "fso:Valve");
                     //if (component.LookupParameter("FSC_kv") != null)
                     //{
                     //    //Kv
@@ -843,7 +850,7 @@ namespace RevitToRDFConverter
                 else if (fscType == "Shunt")
                 {
                     //Type 
-                    sb.Append($"fso:{fscType} rdfs:subClassOf fpo:Valve ." + "\n");
+                    CreateRDFsubclass($"fso:{fscType}", "fso:Valve");
 
                     //if (component.LookupParameter("FSC_hasCheckValve") != null)
                     //{
@@ -857,10 +864,10 @@ namespace RevitToRDFConverter
                 }
 
                 //Damper
-                else if (fscType == "MotorizedDamper" || fscType == "BalancingDamper")
+                else if (fscType.ToLower().Contains("damper"))
                 {
                     //Type 
-                    sb.Append($"fso:{fscType} rdfs:subClassOf fpo:Damper ." + "\n");
+                    CreateRDFsubclass($"fso:{fscType}", "fso:Damper");
 
                     //if (component.LookupParameter("FSC_kv") != null)
                     //{
