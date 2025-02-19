@@ -52,7 +52,7 @@
             this.okButton.Location = new System.Drawing.Point(201, 129);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(75, 23);
-            this.okButton.TabIndex = 1;
+            this.okButton.TabIndex = 3;
             this.okButton.Text = "OK";
             this.okButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.okButton.UseVisualStyleBackColor = true;
@@ -62,10 +62,10 @@
             // 
             this.repositoryIdDropDown.FormattingEnabled = true;
             this.repositoryIdDropDown.Location = new System.Drawing.Point(15, 35);
-            this.repositoryIdDropDown.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.repositoryIdDropDown.Margin = new System.Windows.Forms.Padding(2);
             this.repositoryIdDropDown.Name = "repositoryIdDropDown";
             this.repositoryIdDropDown.Size = new System.Drawing.Size(111, 21);
-            this.repositoryIdDropDown.TabIndex = 2;
+            this.repositoryIdDropDown.TabIndex = 1;
             this.repositoryIdDropDown.SelectedIndexChanged += new System.EventHandler(this.repositoryIdDropDown_SelectedIndexChanged);
             // 
             // graphNameTextBox
@@ -73,13 +73,14 @@
             this.graphNameTextBox.Location = new System.Drawing.Point(16, 78);
             this.graphNameTextBox.Name = "graphNameTextBox";
             this.graphNameTextBox.Size = new System.Drawing.Size(110, 20);
-            this.graphNameTextBox.TabIndex = 3;
+            this.graphNameTextBox.TabIndex = 2;
             this.graphNameTextBox.TextChanged += new System.EventHandler(this.graphNameTextBox_TextChanged);
             this.graphNameTextBox.Enter += new System.EventHandler(this.graphNameTextBox_Enter);
             this.graphNameTextBox.Leave += new System.EventHandler(this.graphNameTextBox_Leave);
             // 
             // GraphDBForm
             // 
+            this.AcceptButton = this.okButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(288, 164);
