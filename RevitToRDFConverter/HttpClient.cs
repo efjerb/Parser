@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Security.Policy;
 
 namespace RevitToRDFConverter
 {
@@ -42,11 +43,13 @@ namespace RevitToRDFConverter
         private static HttpClient client = new HttpClient();
         public static bool OverwriteRepository(string data)
         {
-            (string repositoryID, string graphName) = PromptGraphDBRepositoryID();
+            string baseUrl = PromptGraphDBURL();
+
+            (string repositoryID, string graphName) = PromptGraphDBRepositoryID(baseUrl);
 
             var data1 = new StringContent(data, Encoding.UTF8, "text/turtle");
 
-            var url = $"http://localhost:7200/repositories/{repositoryID}/statements";
+            var url = $"http://{baseUrl}/repositories/{repositoryID}/statements";
             HttpResponseMessage response = client.PutAsync(url, data1).Result;
             
             if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
@@ -57,9 +60,11 @@ namespace RevitToRDFConverter
         }
         public static bool OverwriteGraph(string data)
         {
-            (string repositoryID, string graphName) = PromptGraphDBRepositoryID();
+            string baseUrl = PromptGraphDBURL();
 
-            var url = $"http://localhost:7200/repositories/{repositoryID}/rdf-graphs/{graphName}";
+            (string repositoryID, string graphName) = PromptGraphDBRepositoryID(baseUrl);
+
+            var url = $"http://{baseUrl}/repositories/{repositoryID}/rdf-graphs/{graphName}";
 
             // Delete the graph
             HttpResponseMessage deleteRespone = client.DeleteAsync(url).Result;
@@ -75,9 +80,16 @@ namespace RevitToRDFConverter
             throw new Exception($"Failed to POST data: ({postResponse.StatusCode}): {returnValue}");
 
         }
-        public static (string reposirotyID, string graphName) PromptGraphDBRepositoryID()
+        public static string PromptGraphDBURL()
         {
-            List<string> repositoryList = GetReposirotyIDs();
+            GraphDBURLForm prompt = new GraphDBURLForm();
+            prompt.ShowDialog();
+            string url = prompt.url;
+            return url;
+        }
+        public static (string reposirotyID, string graphName) PromptGraphDBRepositoryID(string baseUrl)
+        {
+            List<string> repositoryList = GetReposirotyIDs(baseUrl);
             GraphDBForm prompt = new GraphDBForm(repositoryList);
             prompt.ShowDialog();
             string repositoryID = prompt.repositoryId;
@@ -85,9 +97,10 @@ namespace RevitToRDFConverter
 
             return (repositoryID, graphName);
         }
-        private static List<string> GetReposirotyIDs()
+
+        private static List<string> GetReposirotyIDs(string baseUrl)
         {
-            var url = $"http://localhost:7200/repositories";
+            string url = $"http://{baseUrl}/repositories";
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/sparql-results+json"));
             
