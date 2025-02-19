@@ -1133,25 +1133,27 @@ namespace RevitToRDFConverter
         public double CreateTap(Duct duct, string componentID, Connector connector, int segmentNumber, ConnectorSet mainConnectors, List<string> systemIDs, double ductFlowRate)
         {
             // Find and instantiate the connected tap
-            FamilyInstance tap = null;
-            foreach (Connector c in connector.AllRefs)
-            {
-                if (c.Domain != Domain.DomainUndefined)
-                {
+            //FamilyInstance tap = null;
+            //foreach (Connector c in connector.AllRefs)
+            //{
+            //    if (c.Domain != Domain.DomainUndefined)
+            //    {
 
-                    tap = c.Owner as FamilyInstance;
-                    break;
-                }
-            }
-            if (tap == null) return 0;
+            //        tap = c.Owner as FamilyInstance;
+            //        break;
+            //    }
+            //}
+            //if (tap == null) return 0;
             
-            string tapGUID = tap.UniqueId;
-            string taprevitID = tap.Id.ToString();
-            
+            string tapGUID = componentID + "-virtualTap-" + connector.Id;
+            string taprevitID = componentID;
+            string connectorID = componentID + "-" + connector.Id;
             // Instantiate the tap in RDF
-            sb.Append($"inst:{tapGUID} a fso:Tap ." + "\n" +
-                      $"inst:{tapGUID} a fso:Tee ." + "\n" +
+            sb.Append($"inst:{tapGUID} a fso:Tee ." + "\n" +
+                      $"inst:{tapGUID} rdfs:label \"VirtualTee\" ." + "\n" +
                       $"inst:{tapGUID} ex:revitID \"{taprevitID}\" ." + "\n");
+
+            sb.Append(RelatedPorts.CreateConnector(connector.Owner, connector, tapGUID, connectorID));
 
             foreach (string systemID in systemIDs)
             {
@@ -1160,21 +1162,22 @@ namespace RevitToRDFConverter
 
 
             // Instantiate the tap's existing connector as a port
-            double flowRate = 0;
-            ConnectorSet tapConnectors = tap.MEPModel.ConnectorManager.Connectors;
-            foreach (Connector tapConnector in tapConnectors)
-            {
-                foreach (Connector tapConnectorAllRef in tapConnector.AllRefs)
-                {
-                    if (tapConnectorAllRef.Owner.UniqueId != componentID && (Domain.DomainHvac == tapConnectorAllRef.Domain || Domain.DomainPiping == tapConnectorAllRef.Domain))
-                    {
-                        sb.Append(RelatedPorts.CreateConnector(tap, tapConnector, tapGUID));
-                        flowRate = UnitUtils.ConvertFromInternalUnits(tapConnector.Flow, UnitTypeId.LitersPerSecond);
+            //double flowRate = 0;
+            //ConnectorSet tapConnectors = tap.MEPModel.ConnectorManager.Connectors;
+            //foreach (Connector tapConnector in tapConnectors)
+            //{
+            //    foreach (Connector tapConnectorAllRef in tapConnector.AllRefs)
+            //    {
+            //        if (tapConnectorAllRef.Owner.UniqueId != componentID && (Domain.DomainHvac == tapConnectorAllRef.Domain || Domain.DomainPiping == tapConnectorAllRef.Domain))
+            //        {
+            //            sb.Append(RelatedPorts.CreateConnector(tap, tapConnector, tapGUID));
+            //            flowRate = UnitUtils.ConvertFromInternalUnits(tapConnector.Flow, UnitTypeId.LitersPerSecond);
                         
-                        break;
-                    }
-                }
-            }
+            //            break;
+            //        }
+            //    }
+            //}
+            double flowRate = UnitUtils.ConvertFromInternalUnits(connector.Flow, UnitTypeId.LitersPerSecond);
 
             Connector startConnector = mainConnectors.Cast<Connector>().FirstOrDefault<Connector>();
             Connector endConnector = mainConnectors.Cast<Connector>().LastOrDefault<Connector>();
