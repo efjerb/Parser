@@ -99,7 +99,7 @@ namespace RevitToRDFConverter
                         $"inst:{isSpaceOf} bot:hasSpace inst:{spaceNumber} ." + "\n" +
                         $"inst:{spaceNumber} ex:revitID '{spaceID}'^^xsd:string ." + "\n" +
                         $"inst:{spaceNumber} brick:area [ brick:hasUnit unit:M2 ; brick:value {area} ] ." + "\n" +
-                        $"inst:{spaceNumber} brick:volume [ brick:hasUnit unit:M3 ; brick:value {volume} ] .");
+                        $"inst:{spaceNumber} brick:volume [ brick:hasUnit unit:M3 ; brick:value {volume} ] ." + "\n");
                 };
             }
 
