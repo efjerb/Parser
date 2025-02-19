@@ -85,6 +85,7 @@ namespace RevitToRDFConverter
                 {
                     string spaceName = space.LookupParameter("Name").AsString().Replace(' ', '-').Replace('\n', '-');
                     string spaceNumber = space.Number;
+                    spaceNumber = spaceNumber.Replace(' ', '-').Replace('\n', '-');
                     string spaceGuid = space.UniqueId.ToString();
                     string isSpaceOf = space.Level.UniqueId;
                     string spaceID = space.Id.ToString();
