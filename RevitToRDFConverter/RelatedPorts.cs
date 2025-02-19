@@ -526,6 +526,7 @@ namespace RevitToRDFConverter
 
 
             }
+            
             if (connector.Flow != null)
             {
                 //Flow rate
@@ -609,12 +610,24 @@ namespace RevitToRDFConverter
         public static string GetPredicates(Connector connector)
         {
             string connectorDirection = connector.Direction.ToString();
+            string systemType = connector.Owner.LookupParameter("System Classification").AsString().ToLower();
+
             switch (connectorDirection)
             {
                 case "In":
-                    return "hasFluidFedBy";
+                    if (systemType.Contains("supply"))
+                        return "hasFluidSuppliedBy";
+                    else if (systemType.Contains("return"))
+                        return "hasFluidReturnedBy";
+                    else
+                        return "hasFluidFedBy";
                 case "Out":
-                    return "feedsFluidTo";
+                    if (systemType.Contains("supply"))
+                        return "suppliesFluidTo";
+                    else if (systemType.Contains("return"))
+                        return "returnsFluidTo";
+                    else
+                        return "feedsFluidTo";
                 default:
                     return "exchangesFluidWith";
             }
